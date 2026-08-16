@@ -56,11 +56,11 @@ Aplikasi ERP
 - BE: PHP & Laravel
 - FE: React
 - Penghubung: Inertia
-- DB: PostgreSQL (Neon/Supabase)
+- DB: MySQL
 - ORM: Eloquent ORM
 
 10. Deployment
 - Aplikasi (Laravel + Inertia + React): Render
-- Database: Neon (PostgreSQL)
+- Database: MySQL
 
 11. ERD dan proses bisnis

@@ -1,8 +1,9 @@
 # Plan Implementasi Aplikasi ERP (Toko Online Single-Seller)
 
 > Sumber: [requirement.md](requirement.md)
-> Tech stack: Laravel (BE) + React (FE) + Inertia + PostgreSQL (Neon) + Eloquent ORM
-> Deployment: Render (app) + Neon (DB)
+> Tech stack: Laravel (BE) + React (FE) + Inertia + MySQL + Eloquent ORM
+> Deployment: Render (app) + MySQL managed (Aiven / PlanetScale / Railway)
+> Revisi 2026-08-16: auth scaffolding diganti dari Breeze ke **React Starter Kit + Fortify** (Breeze tidak lagi tercantum di dokumentasi resmi Starter Kits Laravel 13). Fortify menangani backend auth; Starter Kit menyediakan UI React 19 + TypeScript + Inertia 3 + Tailwind 4 + shadcn/ui dan struktur aplikasi.
 
 ---
 
@@ -38,9 +39,9 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 | Backend | PHP + Laravel | Latest LTS |
 | Frontend | React (TypeScript) | via Inertia |
 | Bridge BE↔FE | Inertia.js | SPA feel tanpa API terpisah |
-| Styling UI | TailwindCSS | Konsisten dengan Breeze stack |
-| Database | PostgreSQL (Neon) | Eloquent ORM |
-| Auth scaffolding | Laravel Breeze (inertia-react) | Sudah include login/register/reset |
+| Styling UI | TailwindCSS | Tailwind 4 — bawaan React Starter Kit |
+| Database | MySQL | via Eloquent ORM (driver `pdo_mysql`); hosting lihat Deployment |
+| Auth scaffolding | React Starter Kit + Laravel Fortify | Fortify = backend auth headless (login/logout/register/reset password/email verify/2FA/rate-limit, dikontrol via `config/fortify.php`); Starter Kit = UI (React 19 + TS + Inertia 3 + shadcn/ui) + layout sidebar/header |
 | RBAC | spatie/laravel-permission | Role: admin, staff_gudang, staff_finance |
 | Audit trail | spatie/laravel-activitylog | Catat create/update/delete + before/after |
 | Notifikasi | Laravel Notification (db + mail) | Email via Resend |
@@ -51,10 +52,11 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 | Export PDF | barryvdh/laravel-dompdf | |
 | Export Excel | maatwebsite/excel | |
 
-**Struktur folder saran (FE):**
-- `resources/js/Pages/` — halaman (Inertia)
-- `resources/js/Components/` — komponen reusable (Tabel, Filter, Form, Modal)
-- `resources/js/Layouts/` — layout (BackOffice, Storefront)
+**Struktur folder saran (FE) — mengikuti struktur bawaan React Starter Kit:**
+- `resources/js/pages/` — halaman (Inertia)
+- `resources/js/components/` — komponen reusable (Tabel, Filter, Form, Modal; komponen shadcn/ui di `components/ui/`)
+- `resources/js/layouts/` — layout bawaan (app sidebar/header, auth) — layout Storefront publik ditambahkan sendiri
+- `resources/js/hooks/`, `resources/js/lib/`, `resources/js/types/` — bawaan Starter Kit
 
 **Struktur folder saran (BE):**
 - `app/Services/` — logika integrasi (MidtransService, ResendService, CloudinaryService, RajaOngkirService, JournalService)
@@ -102,23 +104,22 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 ### Phase 0 — Setup Proyek & Tooling
 **Tujuan:** proyek bisa jalan lokal + struktur dasar siap.
 
-1. Buat proyek Laravel baru: `composer create-project laravel/laravel app-erp`
-2. Install Breeze stack inertia-react: `php artisan breeze:install react` (aktifkan TypeScript bila perlu)
-3. Install & konfigurasi TailwindCSS (sudah dari Breeze)
-4. Konfigurasi koneksi PostgreSQL Neon di `.env` (`DB_CONNECTION=pgsql`)
-5. Install package pendukung: spatie/permission, spatie/activitylog, dompdf, excel, resend, cloudinary, midtrans/php
-6. Setup struktur folder FE & BE sesuai section 1
-7. Inisialisasi git, commit awal, siapkan repo
-8. Buat base layout BackOffice (sidebar + topbar) dan layout Storefront (publik)
+1. Buat proyek Laravel baru dengan **React Starter Kit** (via `laravel new`, pilih React) — sudah include: Fortify (backend auth), React 19 + TypeScript, Inertia 3, Tailwind 4, shadcn/ui, layout sidebar/header
+2. Verifikasi TailwindCSS & TypeScript (include dari Starter Kit — tidak perlu install terpisah)
+3. Konfigurasi koneksi MySQL di `.env` (`DB_CONNECTION=mysql`, isi `DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD`)
+4. Install package pendukung: spatie/permission, spatie/activitylog, dompdf, excel, resend, cloudinary, midtrans/php
+5. Setup struktur folder FE & BE sesuai section 1
+6. Inisialisasi git, commit awal, siapkan repo
+7. Buat base layout BackOffice (sidebar + topbar) dan layout Storefront (publik) — adaptasi dari layout bawaan Starter Kit
 
-**DoD:** `php artisan serve` + `npm run dev` jalan, halaman login Breeze tampil, DB Neon terkoneksi.
+**DoD:** `php artisan serve` + `npm run dev` jalan, halaman login Starter Kit tampil, DB MySQL terkoneksi.
 
 ---
 
 ### Phase 1 — Fondasi: Auth, RBAC, Audit, Notifikasi
 **Tujuan:** pondasi keamanan & pelacakan siap sebelum ada data.
 
-1. Verifikasi & sesuaikan scaffolding Auth dari Breeze (login, logout, lupa password)
+1. Verifikasi & sesuaikan scaffolding Auth dari Starter Kit/Fortify (login, logout, lupa password); matikan registrasi publik (hapus `Features::registration()` di `config/fortify.php`) karena user ERP dibuat oleh admin
 2. Setup spatie/permission: seed 3 role — `admin`, `staff_gudang`, `staff_finance`
 3. Middleware role-based (cek akses per route/menu)
 4. Guard storefront: route publik customer TIDAK butuh login ERP; hanya admin/staff yang akses back-office
@@ -273,25 +274,26 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 **Tujuan:** aplikasi live & dapat diakses.
 
 1. Siapkan environment produksi Render (web service + build npm)
-2. Set environment variables produksi (DB Neon, Midtrans, Resend, Cloudinary, APP_KEY, dll)
-3. Migration & seed awal di DB Neon produksi
+2. Provision DB MySQL managed (Aiven/PlanetScale/Railway) lalu set environment variables produksi (DB MySQL, Midtrans, Resend, Cloudinary, APP_KEY, dll)
+3. Migration & seed awal di DB MySQL produksi
 4. Build asset: `npm run build`
 5. Setup webhook Midtrans ke URL produksi
 6. Smoke test produksi (login, buat order sandbox, cek jurnal)
 7. Dokumentasi singkat: cara deploy, env, akun default
 
-**DoD:** aplikasi live di Render, DB di Neon, alur inti berfungsi di produksi (mode sandbox untuk payment).
+**DoD:** aplikasi live di Render, DB MySQL terkoneksi, alur inti berfungsi di produksi (mode sandbox untuk payment).
 
 ---
 
 ## 4. Catatan Risiko & Pertimbangan
 
 - **Konsistensi stok & jurnal**: gunakan **DB transaction** pada setiap aksi yang menyentuh stok + jurnal agar tidak setengah-jalan (data korup).
+- **Engine MySQL**: pastikan tabel memakai **InnoDB** (default Laravel/MySQL modern) agar foreign key & DB transaction berfungsi; kolom nominal/uang pakai tipe `DECIMAL` (bukan `FLOAT`) demi presisi.
 - **Idempotensi webhook Midtrans**: handle notifikasi pembayaran ganda (cek `gateway_ref`/status sebelum proses ulang).
 - **Auto-jurnal mapping**: siapkan tabel/config mapping akun per jenis transaksi agar fleksibel, jangan hard-code id akun.
 - **Keamanan storefront**: rate-limit checkout, validasi input customer, anti-spam order.
 - **Mode sandbox vs produksi**: pisahkan config Midtrans via env, mudah switch.
-- **Backup DB Neon**: aktifkan jadwal backup/restore point.
+- **Backup DB MySQL**: aktifkan jadwal backup/restore point di provider terpilih.
 
 ---
 

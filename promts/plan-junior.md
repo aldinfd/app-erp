@@ -3,6 +3,7 @@
 > Halo! Ini adalah panduan pembuatan aplikasi ERP versi **sederhana dan mudah dipahami**.
 > Anggap saja ini seperti **resep masak** — ikuti urutannya, dan kamu akan dapet hasilnya.
 > Sumber lengkap: [plan.md](plan.md) | Kebutuhan: [requirement.md](requirement.md)
+> Update 2026-08-16: bagian login sekarang pakai **React Starter Kit + Fortify** (pengganti Breeze — Breeze sudah tidak direkomendasikan di Laravel terbaru).
 
 ---
 
@@ -33,6 +34,8 @@
 | **Jurnal otomatis** | System catat keuangan sendiri saat ada transaksi (tanpa input manual) |
 | **Sandbox** | Mode "latihan" dari payment gateway, uangnya palsu, aman buat tes |
 | **Webhook** | Notifikasi otomatis dari sistem lain (misal Midtrans bilang "udah dibayar") |
+| **Starter Kit** | Paket awalan resmi Laravel — halaman login, layout & komponen UI udah ada dari pabrik. Kita pakai versi React |
+| **Fortify** | "Mesin" di balik layar yang ngurusin login, lupa password, dll (dia kerja tanpa tampilan sendiri) |
 
 ---
 
@@ -70,14 +73,12 @@ Semua modul **terhubung**: jualan → stok berkurang → uang masuk tercatat oto
 🎯 **Tujuan:** Proyek bisa jalan di laptopmu.
 
 ✅ **Langkah:**
-1. Bikin proyek Laravel baru
-2. Pasang Breeze (sudah include React + Inertia + halaman login)
-3. Sambungkan ke database PostgreSQL (Neon)
-4. Pasang TailwindCSS (dari Breeze)
-5. Jalankan: `php artisan serve` (backend) + `npm run dev` (frontend)
-6. Commit pertama
+1. Bikin proyek Laravel baru pakai **React Starter Kit** — sekali bikin langsung dapat: React + Inertia, halaman login, TailwindCSS, dan Fortify (mesin login-nya)
+2. Sambungkan ke database MySQL
+3. Jalankan: `php artisan serve` (backend) + `npm run dev` (frontend)
+4. Commit pertama
 
-🏁 **Selesai kalau:** Buka browser, halaman login muncul, dan bisa konek ke DB Neon.
+🏁 **Selesai kalau:** Buka browser, halaman login muncul, dan bisa konek ke DB MySQL.
 
 💡 **Tips:** Simpan semua "kunci rahasia" (API key, password DB) di file `.env`, **jangan** di-commit ke git!
 
@@ -88,12 +89,13 @@ Semua modul **terhubung**: jualan → stok berkurang → uang masuk tercatat oto
 🎯 **Tujuan:** Aman dulu sebelum ada data. Siapa boleh apa udah jelas.
 
 ✅ **Langkah:**
-1. Cek halaman login dari Breeze (login, logout, lupa password) — sudah jadi
-2. Bikin 3 role: **admin, staff_gudang, staff_finance**
-3. Batasi menu sesuai role (misal: staff gudang tidak bisa lihat menu keuangan)
-4. Pasang pencatat aktivitas (audit trail) — tiap ada yang nambah/edit/hapus data, tercatat siapa & kapan
-5. Siapin sistem notifikasi (muncul di app + kirim email)
-6. Bikin 1 user contoh per role buat tes
+1. Cek halaman login bawaan Starter Kit (login, logout, lupa password) — sudah jadi
+2. Matikan halaman "daftar akun" (register) — user ERP dibuat oleh admin, bukan daftar sendiri (atur di `config/fortify.php`)
+3. Bikin 3 role: **admin, staff_gudang, staff_finance**
+4. Batasi menu sesuai role (misal: staff gudang tidak bisa lihat menu keuangan)
+5. Pasang pencatat aktivitas (audit trail) — tiap ada yang nambah/edit/hapus data, tercatat siapa & kapan
+6. Siapin sistem notifikasi (muncul di app + kirim email)
+7. Bikin 1 user contoh per role buat tes
 
 🏁 **Selesai kalau:** Login jalan, menu beda-beda per role, aksi CRUD kecatat di log.
 
@@ -250,7 +252,7 @@ Tiap halaman harus ada: **tabel + search + filter + tombol tambah/edit/hapus**.
 🎯 **Tujuan:** App bisa diakses dari internet.
 
 ✅ **Langkah:**
-1. Upload ke **Render** (app) + **Neon** (database)
+1. Upload ke **Render** (app) + **MySQL** (database)
 2. Set semua konfigurasi rahasia di server
 3. Jalankan migration di DB produksi
 4. Bangun aset frontend: `npm run build`
