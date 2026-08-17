@@ -4,6 +4,7 @@
 > Tech stack: Laravel (BE) + React (FE) + Inertia + MySQL + Eloquent ORM
 > Deployment: Render (app) + MySQL managed (Aiven / PlanetScale / Railway)
 > Revisi 2026-08-16: auth scaffolding diganti dari Breeze ke **React Starter Kit + Fortify** (Breeze tidak lagi tercantum di dokumentasi resmi Starter Kits Laravel 13). Fortify menangani backend auth; Starter Kit menyediakan UI React 19 + TypeScript + Inertia 3 + Tailwind 4 + shadcn/ui dan struktur aplikasi.
+> Revisi 2026-08-16: desain schema database dirinci di [database.md](database.md); keputusan desain #2–#4 (qty stok signed delta, tabel `journal_mappings`, `payments`/`vendor_payments` terpisah) disetujui user & disinkronkan ke section 2.
 
 ---
 
@@ -67,8 +68,10 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 
 ## 2. ERD & Model Data (proposal — mengisi section 11 requirement)
 
+> Desain lengkap per kolom: lihat [database.md](database.md). Untuk pembuatan migration, database.md yang jadi acuan.
+
 ### Master data
-- **users** (id, name, email, password, role, timestamps)
+- **users** (id, name, email, password, timestamps) — **tanpa kolom `role`**; RBAC via spatie (disetujui 2026-08-16)
 - **roles / permissions** (via spatie)
 - **products** (id, name, sku, category_id, unit_id, cost_price, selling_price, stock_qty, reorder_point, image_url, is_active, timestamps)
 - **categories** (id, name, parent_id nullable)
@@ -84,14 +87,16 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 - **payments** (id, invoice_id, amount, method, paid_at, gateway, gateway_ref, status)
 
 ### Transaksi Purchase
-- **purchase_orders** (id, po_number, vendor_id, order_date, status[draft/ordered/received/cancelled], grand_total, timestamps)
+- **purchase_orders** (id, po_number, vendor_id, order_date, status[draft/ordered/received/paid/cancelled], grand_total, timestamps) — status `paid` disetujui 2026-08-16 (alur Phase 5: `draft → ordered → received → paid`)
 - **purchase_order_items** (id, purchase_order_id, product_id, qty, unit_cost, subtotal)
-- **vendor_invoices / payments** analog dengan sales
+- **vendor_invoices** (id, vendor_invoice_number, purchase_order_id, invoice_date, due_date, amount, amount_paid, status[unpaid/partial/paid], timestamps)
+- **vendor_payments** (id, vendor_invoice_id, amount, method[bank_transfer/cash], reference_no, paid_at, notes, timestamps) — **tabel terpisah dari `payments`** (disetujui 2026-08-16: field & siklus hidup berbeda — Midtrans vs transfer manual)
 
 ### Inventory & Finance
-- **stock_movements** (id, product_id, type[in/out/adjust], qty, before_qty, after_qty, reference_type, reference_id, note, created_at)
+- **stock_movements** (id, product_id, type[in/out/adjust], qty **signed delta** — in=+, out=−, adjust=± (disetujui 2026-08-16), before_qty, after_qty, reference_type, reference_id, user_id, note, created_at)
 - **journal_entries** (id, entry_number, date, description, reference_type, reference_id, posted_by, timestamps)
 - **journal_lines** (id, journal_entry_id, account_id, debit, credit)
+- **journal_mappings** (id, transaction_type, account_key, account_id) — mapping akun auto-jurnal, UNIQUE(transaction_type, account_key); disetujui 2026-08-16
 - **notifications** (via Laravel)
 - **activity_log** (via spatie activitylog)
 
@@ -199,7 +204,7 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 3. Saat **barang diterima**:
    - Tambah stok via StockService (type `in`, reference = purchase_order)
    - Update status PO → `received`
-4. **Invoice vendor & pembayaran**: catat vendor invoice, lalu bayar
+4. **Invoice vendor & pembayaran**: catat vendor invoice (`vendor_invoices`), lalu bayar (`vendor_payments`)
 5. Saat dibayar → **post auto-jurnal** ke Finance
 6. Notifikasi "PO perlu ditindaklanjuti"
 
@@ -215,7 +220,7 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 **Tujuan:** semua transaksi ter-refleksi di keuangan, bisa dilaporkan.
 
 1. `JournalService` terpusat: `post(entry)` dengan validasi **balance** (debit == credit), auto `entry_number`, link `reference`
-2. JournalService dipanggil dari Phase 4 & 5 (single source of truth untuk auto-jurnal)
+2. JournalService dipanggil dari Phase 4 & 5 (single source of truth untuk auto-jurnal); mapping akun via tabel `journal_mappings` — bukan hard-code
 3. Halaman **Jurnal Umum** (list journal_entries + lines, filter tanggal)
 4. **Manual journal entry** (staff_finance) untuk koreksi/penyesuaian
 5. **Buku Besar (General Ledger)** per akun
@@ -290,7 +295,7 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 - **Konsistensi stok & jurnal**: gunakan **DB transaction** pada setiap aksi yang menyentuh stok + jurnal agar tidak setengah-jalan (data korup).
 - **Engine MySQL**: pastikan tabel memakai **InnoDB** (default Laravel/MySQL modern) agar foreign key & DB transaction berfungsi; kolom nominal/uang pakai tipe `DECIMAL` (bukan `FLOAT`) demi presisi.
 - **Idempotensi webhook Midtrans**: handle notifikasi pembayaran ganda (cek `gateway_ref`/status sebelum proses ulang).
-- **Auto-jurnal mapping**: siapkan tabel/config mapping akun per jenis transaksi agar fleksibel, jangan hard-code id akun.
+- **Auto-jurnal mapping**: siapkan tabel/config mapping akun per jenis transaksi agar fleksibel, jangan hard-code id akun. → Realisasi: tabel `journal_mappings` (disetujui 2026-08-16, detail di database.md §8.3).
 - **Keamanan storefront**: rate-limit checkout, validasi input customer, anti-spam order.
 - **Mode sandbox vs produksi**: pisahkan config Midtrans via env, mudah switch.
 - **Backup DB MySQL**: aktifkan jadwal backup/restore point di provider terpilih.

@@ -4,6 +4,7 @@
 > Anggap saja ini seperti **resep masak** — ikuti urutannya, dan kamu akan dapet hasilnya.
 > Sumber lengkap: [plan.md](plan.md) | Kebutuhan: [requirement.md](requirement.md)
 > Update 2026-08-16: bagian login sekarang pakai **React Starter Kit + Fortify** (pengganti Breeze — Breeze sudah tidak direkomendasikan di Laravel terbaru).
+> Update 2026-08-16: desain tabel database udah jadi & sebagian disetujui — detail teknisnya ada di [database.md](database.md).
 
 ---
 
@@ -129,7 +130,7 @@ Tiap halaman harus ada: **tabel + search + filter + tombol tambah/edit/hapus**.
 
 ✅ **Langkah:**
 1. Bikin **StockService** — SATU pintu untuk ubah stok (tambah/kurang/koreksi)
-2. Setiap ubah stok → catat di tabel **stock_movements** (siapa, kapan, berapa, kenapa)
+2. Setiap ubah stok → catat di tabel **stock_movements** (siapa, kapan, berapa, kenapa). Trik: angkanya pakai tanda — masuk = **plus**, keluar = **minus**, koreksi = plus/minus. Jadi stok sekarang = tinggal jumlah semua catatan
 3. Halaman **riwayat stok** (bisa filter tanggal/produk)
 4. Halaman **stock opname** (koreksi stok + alasan)
 5. Alarm **stok menipis**: kalau stok ≤ batas minimum, kirim notifikasi
@@ -174,7 +175,7 @@ Tiap halaman harus ada: **tabel + search + filter + tombol tambah/edit/hapus**.
 1. Bikin **Purchase Order (PO)** — staff gudang pesan barang ke vendor
 2. Status PO: *draft → dipesan → diterima → dibayar*
 3. Saat **barang diterima**: tambah stok (lewat StockService!)
-4. Catat **invoice vendor**, lalu bayar
+4. Catat **invoice vendor** (`vendor_invoices`), lalu bayar (`vendor_payments` — beda tabel dengan pembayaran customer)
 5. Saat dibayar → catat keuangan (jurnal otomatis)
 
 🏁 **Selesai kalau:** PO dibuat → barang diterima stok nambah → dibayar keuangan kecatat.
@@ -197,7 +198,7 @@ Tiap halaman harus ada: **tabel + search + filter + tombol tambah/edit/hapus**.
 
 🏁 **Selesai kalau:** Tiap jualan/beli otomatis bikin jurnal yang balance, laporan keuangan angkanya cocok.
 
-💡 **Tips:** Jangan hard-code ID akun (misal "akun kas = no 5"). Bikin tabel mapping biar gampang diganti. Dan selalu bungkus proses stok+jurnal pakai **DB transaction** — biar kalau ada error di tengah, semua batal (gak setengah-setengah/corrupt).
+💡 **Tips:** Jangan hard-code ID akun (misal "akun kas = no 5"). Bikin tabel mapping (**journal_mappings**) biar gampang diganti. Dan selalu bungkus proses stok+jurnal pakai **DB transaction** — biar kalau ada error di tengah, semua batal (gak setengah-setengah/corrupt).
 
 ---
 
