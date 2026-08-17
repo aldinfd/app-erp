@@ -4,7 +4,7 @@
 > Tech stack: Laravel (BE) + React (FE) + Inertia + MySQL + Eloquent ORM
 > Deployment: Render (app) + MySQL managed (Aiven / PlanetScale / Railway)
 > Revisi 2026-08-16: auth scaffolding diganti dari Breeze ke **React Starter Kit + Fortify** (Breeze tidak lagi tercantum di dokumentasi resmi Starter Kits Laravel 13). Fortify menangani backend auth; Starter Kit menyediakan UI React 19 + TypeScript + Inertia 3 + Tailwind 4 + shadcn/ui dan struktur aplikasi.
-> Revisi 2026-08-16: desain schema database dirinci di [database.md](database.md); keputusan desain #2–#4 (qty stok signed delta, tabel `journal_mappings`, `payments`/`vendor_payments` terpisah) disetujui user & disinkronkan ke section 2.
+> Revisi 2026-08-16: desain schema database dirinci di [schema-database.md](schema-database.md); keputusan desain #2–#4 (qty stok signed delta, tabel `journal_mappings`, `payments`/`vendor_payments` terpisah) disetujui user & disinkronkan ke section 2.
 
 ---
 
@@ -48,7 +48,7 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 | Notifikasi | Laravel Notification (db + mail) | Email via Resend |
 | Payment gateway | Midtrans (midtrans/midtrans-php) | Sandbox dulu |
 | Email | Resend (resend/resend-laravel) | |
-| Upload gambar | Cloudinary (cloudinary/laravel) | Free tier |
+| Upload gambar | Storage lokal Laravel (disk `public`) | Revisi 2026-08-17: cloudinary/laravel belum support Laravel 13 → backlog; kolom `image_url` URL-agnostic, swap nanti tanpa ubah DB |
 | Ongkir (opsional) | RajaOngkir via HTTP Client | Free |
 | Export PDF | barryvdh/laravel-dompdf | |
 | Export Excel | maatwebsite/excel | |
@@ -60,7 +60,7 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 - `resources/js/hooks/`, `resources/js/lib/`, `resources/js/types/` — bawaan Starter Kit
 
 **Struktur folder saran (BE):**
-- `app/Services/` — logika integrasi (MidtransService, ResendService, CloudinaryService, RajaOngkirService, JournalService)
+- `app/Services/` — logika integrasi (MidtransService, ResendService, RajaOngkirService, JournalService)
 - `app/Actions/` — aksi domain (CreateSalesOrder, ReceivePurchaseOrder, PostAutoJournal)
 - `app/Http/Controllers/`, `app/Models/`
 
@@ -68,7 +68,7 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 
 ## 2. ERD & Model Data (proposal — mengisi section 11 requirement)
 
-> Desain lengkap per kolom: lihat [database.md](database.md). Untuk pembuatan migration, database.md yang jadi acuan.
+> Desain lengkap per kolom: lihat [schema-database.md](schema-database.md). Untuk pembuatan migration, schema-database.md yang jadi acuan.
 
 ### Master data
 - **users** (id, name, email, password, timestamps) — **tanpa kolom `role`**; RBAC via spatie (disetujui 2026-08-16)
@@ -112,7 +112,7 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 1. Buat proyek Laravel baru dengan **React Starter Kit** (via `laravel new`, pilih React) — sudah include: Fortify (backend auth), React 19 + TypeScript, Inertia 3, Tailwind 4, shadcn/ui, layout sidebar/header
 2. Verifikasi TailwindCSS & TypeScript (include dari Starter Kit — tidak perlu install terpisah)
 3. Konfigurasi koneksi MySQL di `.env` (`DB_CONNECTION=mysql`, isi `DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD`)
-4. Install package pendukung: spatie/permission, spatie/activitylog, dompdf, excel, resend, cloudinary, midtrans/php
+4. Install package pendukung: spatie/permission, spatie/activitylog, dompdf, excel, resend, midtrans/php (cloudinary dikeluarkan 2026-08-17 — belum support Laravel 13; upload gambar pakai storage lokal, lihat §4)
 5. Setup struktur folder FE & BE sesuai section 1
 6. Inisialisasi git, commit awal, siapkan repo
 7. Buat base layout BackOffice (sidebar + topbar) dan layout Storefront (publik) — adaptasi dari layout bawaan Starter Kit
@@ -143,11 +143,11 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 2. Seeder data contoh (kategori, satuan, beberapa produk, CoA standar)
 3. Halaman index per master dengan: tabel, **search**, **filter**, paginasi
 4. Form create/edit (validasi server-side + FE)
-5. Upload gambar produk → CloudinaryService (simpan `image_url`)
+5. Upload gambar produk → storage lokal disk `public` (simpan path/URL di `image_url`)
 6. RBAC: mis. produk/kategori dikelola admin & staff_gudang; customer/vendor oleh admin & staff_finance
 7. Soft-delete opsional pada data penting
 
-**DoD:** semua master bisa dibuat/diedit/dihapus, gambar produk tersimpan di Cloudinary, search/filter berfungsi.
+**DoD:** semua master bisa dibuat/diedit/dihapus, gambar produk tersimpan di storage lokal, search/filter berfungsi.
 
 ---
 
@@ -279,7 +279,7 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 **Tujuan:** aplikasi live & dapat diakses.
 
 1. Siapkan environment produksi Render (web service + build npm)
-2. Provision DB MySQL managed (Aiven/PlanetScale/Railway) lalu set environment variables produksi (DB MySQL, Midtrans, Resend, Cloudinary, APP_KEY, dll)
+2. Provision DB MySQL managed (Aiven/PlanetScale/Railway) lalu set environment variables produksi (DB MySQL, Midtrans, Resend, APP_KEY, dll)
 3. Migration & seed awal di DB MySQL produksi
 4. Build asset: `npm run build`
 5. Setup webhook Midtrans ke URL produksi
@@ -295,10 +295,11 @@ ERP internal untuk 1 toko/UMKM yang jualan online. Tim internal (Admin, Staff Gu
 - **Konsistensi stok & jurnal**: gunakan **DB transaction** pada setiap aksi yang menyentuh stok + jurnal agar tidak setengah-jalan (data korup).
 - **Engine MySQL**: pastikan tabel memakai **InnoDB** (default Laravel/MySQL modern) agar foreign key & DB transaction berfungsi; kolom nominal/uang pakai tipe `DECIMAL` (bukan `FLOAT`) demi presisi.
 - **Idempotensi webhook Midtrans**: handle notifikasi pembayaran ganda (cek `gateway_ref`/status sebelum proses ulang).
-- **Auto-jurnal mapping**: siapkan tabel/config mapping akun per jenis transaksi agar fleksibel, jangan hard-code id akun. → Realisasi: tabel `journal_mappings` (disetujui 2026-08-16, detail di database.md §8.3).
+- **Auto-jurnal mapping**: siapkan tabel/config mapping akun per jenis transaksi agar fleksibel, jangan hard-code id akun. → Realisasi: tabel `journal_mappings` (disetujui 2026-08-16, detail di schema-database.md §8.3).
 - **Keamanan storefront**: rate-limit checkout, validasi input customer, anti-spam order.
 - **Mode sandbox vs produksi**: pisahkan config Midtrans via env, mudah switch.
 - **Backup DB MySQL**: aktifkan jadwal backup/restore point di provider terpilih.
+- **Cloudinary belum support Laravel 13** (2026-08-17): upload gambar sementara pakai storage lokal. ⚠️ Disk Render ephemeral — sebelum go-live perlu storage persisten (Render disk, S3, atau Cloudinary saat sudah support). Kolom `image_url` sudah URL-agnostic sehingga swap tanpa ubah schema.
 
 ---
 

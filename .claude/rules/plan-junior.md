@@ -4,7 +4,7 @@
 > Anggap saja ini seperti **resep masak** — ikuti urutannya, dan kamu akan dapet hasilnya.
 > Sumber lengkap: [plan.md](plan.md) | Kebutuhan: [requirement.md](requirement.md)
 > Update 2026-08-16: bagian login sekarang pakai **React Starter Kit + Fortify** (pengganti Breeze — Breeze sudah tidak direkomendasikan di Laravel terbaru).
-> Update 2026-08-16: desain tabel database udah jadi & sebagian disetujui — detail teknisnya ada di [database.md](database.md).
+> Update 2026-08-16: desain tabel database udah jadi & sebagian disetujui — detail teknisnya ada di [schema-database.md](schema-database.md).
 
 ---
 
@@ -111,7 +111,7 @@ Semua modul **terhubung**: jualan → stok berkurang → uang masuk tercatat oto
 ✅ **Langkah (buat tabel + halaman CRUD untuk masing-masing):**
 1. **Kategori produk** (contoh: Pakaian, Elektronik)
 2. **Satuan** (pcs, kg, lusin)
-3. **Produk** (nama, harga, stok awal, dll) + upload gambar ke Cloudinary
+3. **Produk** (nama, harga, stok awal, dll) + upload gambar (disimpan di server sendiri dulu — Cloudinary menyusul kalau sudah dukung Laravel 13)
 4. **Customer** (data pelanggan)
 5. **Vendor** (data pemasok)
 6. **Chart of Account / CoA** (daftar akun keuangan: Kas, Pendapatan, dll)

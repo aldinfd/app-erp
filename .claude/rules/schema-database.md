@@ -6,7 +6,7 @@
 >
 > ⚠️ **Status menurut aturan-database #2 & #8:** Schema sudah diimplementasikan di `database/migrations/` (5 file, 2026-08-16).
 > **Single Source of Truth adalah folder `database/migrations/`** — jika dokumen ini dan migration berbeda, migration yang menang.
-> Migration lulus test schema di SQLite (`tests/Feature/DatabaseSchemaTest.php`) dan sudah dijalankan di MySQL `erp` (diverifikasi via `db:table`, 2026-08-16). Tabel spatie belum ada — menunggu install package.
+> Migration lulus test schema di SQLite (`tests/Feature/DatabaseSchemaTest.php`) dan sudah dijalankan di MySQL `erp` (diverifikasi via `db:table`, 2026-08-16). Tabel spatie (permission 8.3.0 + activitylog 5.1.0) ditambahkan 2026-08-17 — total 12 migration Ran.
 
 ---
 
@@ -440,5 +440,5 @@ Contoh isi (seeder Phase 6):
 ## 12. Hal yang Masih Perlu Diverifikasi (aturan-database #1 & #9)
 
 - [x] Kolom aktual tabel `users` bawaan Starter Kit/Fortify → dicek 2026-08-16: `id, name, email (unique), email_verified_at, password, remember_token, timestamps` (+ 2FA & passkeys via migration terpisah) — tanpa kolom `role`, cocok keputusan #1
-- [ ] Struktur tabel spatie (versi package yang terinstall nanti) → cek migration vendor setelah `composer require`
+- [x] Struktur tabel spatie → terverifikasi 2026-08-17 via `db:table` (laravel-permission 8.3.0: `roles` UNIQUE(name, guard_name); laravel-activitylog 5.1.0: `activity_log` polymorphic subject/causer + JSON properties) — migration di-publish & Ran
 - [x] Keputusan #1–#9 → disetujui user (2026-08-16)
