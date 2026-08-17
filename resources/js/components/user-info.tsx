@@ -5,9 +5,11 @@ import type { User } from '@/types';
 export function UserInfo({
     user,
     showEmail = false,
+    subtitle,
 }: {
     user: User;
     showEmail?: boolean;
+    subtitle?: string;
 }) {
     const getInitials = useInitials();
 
@@ -21,7 +23,12 @@ export function UserInfo({
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                {showEmail && (
+                {subtitle && (
+                    <span className="truncate text-xs text-muted-foreground">
+                        {subtitle}
+                    </span>
+                )}
+                {!subtitle && showEmail && (
                     <span className="truncate text-xs text-muted-foreground">
                         {user.email}
                     </span>

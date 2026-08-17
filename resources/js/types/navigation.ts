@@ -11,4 +11,6 @@ export type NavItem = {
     href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    /** Role yang boleh melihat menu ini. Kosong = semua role internal. */
+    roles?: string[];
 };
