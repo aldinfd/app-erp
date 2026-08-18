@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { BookOpen, FolderGit2, Landmark, LayoutGrid, Package, Ruler, Tag, UserSquare, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -14,6 +14,12 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as categoriesIndex } from '@/routes/categories';
+import { index as chartOfAccountsIndex } from '@/routes/chart-of-accounts';
+import { index as customersIndex } from '@/routes/customers';
+import { index as productsIndex } from '@/routes/products';
+import { index as unitsIndex } from '@/routes/units';
+import { index as vendorsIndex } from '@/routes/vendors';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -21,6 +27,42 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Produk',
+        href: productsIndex.url(),
+        icon: Package,
+        roles: ['admin', 'staff_gudang'],
+    },
+    {
+        title: 'Kategori',
+        href: categoriesIndex.url(),
+        icon: Tag,
+        roles: ['admin', 'staff_gudang'],
+    },
+    {
+        title: 'Satuan',
+        href: unitsIndex.url(),
+        icon: Ruler,
+        roles: ['admin', 'staff_gudang'],
+    },
+    {
+        title: 'Customer',
+        href: customersIndex.url(),
+        icon: Users,
+        roles: ['admin', 'staff_finance'],
+    },
+    {
+        title: 'Vendor',
+        href: vendorsIndex.url(),
+        icon: UserSquare,
+        roles: ['admin', 'staff_finance'],
+    },
+    {
+        title: 'Chart of Accounts',
+        href: chartOfAccountsIndex.url(),
+        icon: Landmark,
+        roles: ['admin', 'staff_finance'],
     },
 ];
 

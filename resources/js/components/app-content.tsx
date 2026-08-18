@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { FlashMessages } from '@/components/flash-messages';
 import { SidebarInset } from '@/components/ui/sidebar';
 import type { AppVariant } from '@/types';
 
@@ -8,7 +9,12 @@ type Props = React.ComponentProps<'main'> & {
 
 export function AppContent({ variant = 'sidebar', children, ...props }: Props) {
     if (variant === 'sidebar') {
-        return <SidebarInset {...props}>{children}</SidebarInset>;
+        return (
+            <SidebarInset {...props}>
+                <FlashMessages />
+                {children}
+            </SidebarInset>
+        );
     }
 
     return (
