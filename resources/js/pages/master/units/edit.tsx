@@ -1,6 +1,7 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { index, update } from '@/routes/units';
@@ -30,6 +31,18 @@ export default function UnitsEdit({ unit }: Props) {
                                 <Label htmlFor="abbreviation">Singkatan</Label>
                                 <Input id="abbreviation" name="abbreviation" required defaultValue={unit.abbreviation} />
                                 <InputError message={errors.abbreviation} />
+                            </div>
+
+                            <div className="flex items-center space-x-3">
+                                {/* Hidden 0 + checkbox 1 agar nilai tetap terkirim saat tidak dicentang. */}
+                                <input type="hidden" name="allows_fraction" value="0" />
+                                <Checkbox
+                                    id="allows_fraction"
+                                    name="allows_fraction"
+                                    value="1"
+                                    defaultChecked={unit.allows_fraction}
+                                />
+                                <Label htmlFor="allows_fraction">Boleh pecahan (mis. kg)</Label>
                             </div>
 
                             <div className="flex gap-2">

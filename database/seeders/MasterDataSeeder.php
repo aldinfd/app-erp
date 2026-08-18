@@ -26,12 +26,15 @@ class MasterDataSeeder extends Seeder
         ]);
 
         $units = collect([
-            ['name' => 'Pieces', 'abbreviation' => 'pcs'],
-            ['name' => 'Kilogram', 'abbreviation' => 'kg'],
-            ['name' => 'Pack', 'abbreviation' => 'pack'],
-            ['name' => 'Lusin', 'abbreviation' => 'lusin'],
+            ['name' => 'Pieces', 'abbreviation' => 'pcs', 'allows_fraction' => false],
+            ['name' => 'Kilogram', 'abbreviation' => 'kg', 'allows_fraction' => true],
+            ['name' => 'Pack', 'abbreviation' => 'pack', 'allows_fraction' => false],
+            ['name' => 'Lusin', 'abbreviation' => 'lusin', 'allows_fraction' => false],
         ])->mapWithKeys(fn (array $attributes) => [
-            $attributes['abbreviation'] => Unit::firstOrCreate($attributes),
+            $attributes['abbreviation'] => Unit::updateOrCreate(
+                ['abbreviation' => $attributes['abbreviation']],
+                $attributes,
+            ),
         ]);
 
         $products = [

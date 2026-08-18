@@ -22,7 +22,7 @@ class StockMovementController extends Controller
         $dateTo = $request->query('date_to');
 
         $movements = StockMovement::query()
-            ->with(['product:id,sku,name', 'user:id,name'])
+            ->with(['product:id,sku,name,unit_id', 'product.unit:id,abbreviation,allows_fraction', 'user:id,name'])
             ->when($q, fn ($query) => $query->whereHas('product', fn ($product) => $product
                 ->where('sku', 'like', "%{$q}%")
                 ->orWhere('name', 'like', "%{$q}%")))

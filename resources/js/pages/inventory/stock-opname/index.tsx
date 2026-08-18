@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import InputError from '@/components/input-error';
 import { index, adjust } from '@/routes/stock-opname';
+import { formatQty } from '@/lib/utils';
 import type { OpnameProduct, Paginated } from '@/types';
 
 type Props = {
@@ -59,15 +60,17 @@ function OpnameRow({
             <td className="px-4 py-2">{product.name}</td>
             <td className="px-4 py-2">{product.unit?.abbreviation ?? '-'}</td>
             <td className={`px-4 py-2 text-right font-mono ${isLow ? 'text-red-600 dark:text-red-400' : ''}`}>
-                {product.stock_qty}
+                {formatQty(product.stock_qty, product.unit?.allows_fraction)}
             </td>
-            <td className="px-4 py-2 text-right font-mono">{product.reorder_point}</td>
+            <td className="px-4 py-2 text-right font-mono">
+                {formatQty(product.reorder_point, product.unit?.allows_fraction)}
+            </td>
             <td className="px-4 py-2">
                 <form onSubmit={submit} className="flex flex-wrap items-center justify-end gap-2">
                     <div className="w-28">
                         <Input
                             type="number"
-                            step="0.01"
+                            step={product.unit?.allows_fraction ? '0.01' : '1'}
                             min="0"
                             value={newQty}
                             onChange={(e) => setNewQty(e.target.value)}

@@ -39,6 +39,7 @@ class UnitController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:50'],
             'abbreviation' => ['required', 'string', 'max:10', 'unique:units,abbreviation'],
+            'allows_fraction' => ['boolean'],
         ]);
 
         Unit::create($validated);
@@ -58,6 +59,7 @@ class UnitController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:50'],
             'abbreviation' => ['required', 'string', 'max:10', 'unique:units,abbreviation,'.$unit->id],
+            'allows_fraction' => ['boolean'],
         ]);
 
         $unit->update($validated);

@@ -10,3 +10,13 @@ export function cn(...inputs: ClassValue[]) {
 export function toUrl(url: NonNullable<InertiaLinkProps['href']>): string {
     return typeof url === 'string' ? url : url.url;
 }
+
+/**
+ * Format angka qty stok/reorder point: bilangan bulat tanpa desimal kecuali
+ * satuannya boleh pecahan (mis. kg) — ikut flag allows_fraction dari unit.
+ */
+export function formatQty(value: string | number, allowsFraction = false): string {
+    const num = Number(value);
+
+    return allowsFraction ? num.toFixed(2) : String(Math.round(num));
+}

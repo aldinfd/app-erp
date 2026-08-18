@@ -54,6 +54,7 @@ export default function UnitsIndex({ units, filters }: Props) {
                             <tr>
                                 <th className="px-4 py-2 font-medium">Nama</th>
                                 <th className="px-4 py-2 font-medium">Singkatan</th>
+                                <th className="px-4 py-2 font-medium">Boleh Pecahan</th>
                                 <th className="px-4 py-2 font-medium">Aksi</th>
                             </tr>
                         </thead>
@@ -62,6 +63,7 @@ export default function UnitsIndex({ units, filters }: Props) {
                                 <tr key={unit.id} className="border-t">
                                     <td className="px-4 py-2">{unit.name}</td>
                                     <td className="px-4 py-2">{unit.abbreviation}</td>
+                                    <td className="px-4 py-2">{unit.allows_fraction ? 'Ya' : 'Tidak'}</td>
                                     <td className="px-4 py-2">
                                         <div className="flex gap-2">
                                             <Button asChild variant="outline" size="sm">
@@ -76,7 +78,7 @@ export default function UnitsIndex({ units, filters }: Props) {
                             ))}
                             {units.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={3} className="px-4 py-8 text-center text-neutral-500">
+                                    <td colSpan={4} className="px-4 py-8 text-center text-neutral-500">
                                         Tidak ada satuan.
                                     </td>
                                 </tr>

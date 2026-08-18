@@ -25,6 +25,7 @@ export type Unit = {
     id: number;
     name: string;
     abbreviation: string;
+    allows_fraction: boolean;
 };
 
 export type Product = {
@@ -40,7 +41,7 @@ export type Product = {
     image_url: string | null;
     is_active: boolean;
     category?: { id: number; name: string } | null;
-    unit?: { id: number; name: string; abbreviation: string } | null;
+    unit?: { id: number; name: string; abbreviation: string; allows_fraction: boolean } | null;
 };
 
 export type Customer = {

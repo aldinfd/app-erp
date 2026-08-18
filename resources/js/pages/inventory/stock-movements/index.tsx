@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { index } from '@/routes/stock-movements';
+import { formatQty } from '@/lib/utils';
 import type { PaginatedMovements, StockMovement, StockMovementType } from '@/types';
 
 type Props = {
@@ -25,11 +26,11 @@ const REFERENCE_LABELS: Record<string, string> = {
     stock_opname: 'Stock Opname',
 };
 
-function formatQty(movement: StockMovement): string {
+function formatSignedQty(movement: StockMovement): string {
     const qty = Number(movement.qty);
     const sign = qty > 0 ? '+' : '';
 
-    return `${sign}${qty.toFixed(2)}`;
+    return sign + formatQty(qty, movement.product?.unit?.allows_fraction);
 }
 
 function formatDateTime(iso: string): string {
@@ -149,10 +150,14 @@ export default function StockMovementsIndex({ movements, types, filters }: Props
                                             Number(movement.qty) < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
                                         }`}
                                     >
-                                        {formatQty(movement)}
+                                        {formatSignedQty(movement)}
                                     </td>
-                                    <td className="px-4 py-2 text-right font-mono">{movement.before_qty}</td>
-                                    <td className="px-4 py-2 text-right font-mono">{movement.after_qty}</td>
+                                    <td className="px-4 py-2 text-right font-mono">
+                                        {formatQty(movement.before_qty, movement.product?.unit?.allows_fraction)}
+                                    </td>
+                                    <td className="px-4 py-2 text-right font-mono">
+                                        {formatQty(movement.after_qty, movement.product?.unit?.allows_fraction)}
+                                    </td>
                                     <td className="px-4 py-2 whitespace-nowrap">
                                         {movement.reference_type
                                             ? `${REFERENCE_LABELS[movement.reference_type] ?? movement.reference_type}${movement.reference_id ? ` #${movement.reference_id}` : ''}`

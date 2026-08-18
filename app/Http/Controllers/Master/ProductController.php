@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Unit;
+use App\Rules\WholeNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +22,7 @@ class ProductController extends Controller
         $status = $request->query('status');
 
         $products = Product::query()
-            ->with(['category:id,name', 'unit:id,name,abbreviation'])
+            ->with(['category:id,name', 'unit:id,name,abbreviation,allows_fraction'])
             ->when($q, fn ($query) => $query
                 ->where(fn ($where) => $where
                     ->where('sku', 'like', "%{$q}%")
@@ -44,7 +45,7 @@ class ProductController extends Controller
     {
         return Inertia::render('master/products/create', [
             'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
-            'units' => Unit::query()->orderBy('name')->get(['id', 'name', 'abbreviation']),
+            'units' => Unit::query()->orderBy('name')->get(['id', 'name', 'abbreviation', 'allows_fraction']),
         ]);
     }
 
@@ -57,7 +58,7 @@ class ProductController extends Controller
             'unit_id' => ['required', 'integer', 'exists:units,id'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
             'selling_price' => ['nullable', 'numeric', 'min:0'],
-            'reorder_point' => ['nullable', 'numeric', 'min:0'],
+            'reorder_point' => ['nullable', 'numeric', 'min:0', ...$this->reorderPointRules($request)],
             'is_active' => ['boolean'],
             'image' => ['nullable', 'image', 'max:2048'],
         ]);
@@ -74,9 +75,9 @@ class ProductController extends Controller
     public function edit(Product $product): Response
     {
         return Inertia::render('master/products/edit', [
-            'product' => $product,
+            'product' => $product->load('unit:id,name,abbreviation,allows_fraction'),
             'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
-            'units' => Unit::query()->orderBy('name')->get(['id', 'name', 'abbreviation']),
+            'units' => Unit::query()->orderBy('name')->get(['id', 'name', 'abbreviation', 'allows_fraction']),
         ]);
     }
 
@@ -89,7 +90,7 @@ class ProductController extends Controller
             'unit_id' => ['required', 'integer', 'exists:units,id'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
             'selling_price' => ['nullable', 'numeric', 'min:0'],
-            'reorder_point' => ['nullable', 'numeric', 'min:0'],
+            'reorder_point' => ['nullable', 'numeric', 'min:0', ...$this->reorderPointRules($request)],
             'is_active' => ['boolean'],
             'image' => ['nullable', 'image', 'max:2048'],
         ]);
@@ -108,5 +109,20 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus.');
+    }
+
+    /**
+     * Reorder point wajib bilangan bulat kecuali satuan produknya boleh
+     * pecahan (mis. kg).
+     *
+     * @return list<object|string>
+     */
+    private function reorderPointRules(Request $request): array
+    {
+        $allowsFraction = Unit::query()
+            ->whereKey($request->integer('unit_id'))
+            ->value('allows_fraction');
+
+        return $allowsFraction ? [] : [new WholeNumber];
     }
 }

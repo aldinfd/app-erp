@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Form, Head, Link } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { index, update } from '@/routes/products';
+import { formatQty } from '@/lib/utils';
 import type { Category, Product, Unit } from '@/types';
 
 type Props = {
@@ -16,6 +18,12 @@ type Props = {
 const selectClass = 'border-input bg-background h-9 rounded-md border px-3 text-sm';
 
 export default function ProductsEdit({ product, categories, units }: Props) {
+    const [unitId, setUnitId] = React.useState(String(product.unit_id));
+
+    // Reorder point hanya boleh pecahan bila satuannya bisa pecahan (mis. kg).
+    const selectedUnit = units.find((unit) => String(unit.id) === unitId);
+    const reorderStep = selectedUnit?.allows_fraction ? '0.01' : '1';
+
     return (
         <>
             <Head title={`Edit Produk — ${product.name}`} />
@@ -57,7 +65,7 @@ export default function ProductsEdit({ product, categories, units }: Props) {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="unit_id">Satuan</Label>
-                                <select id="unit_id" name="unit_id" required defaultValue={product.unit_id} className={selectClass}>
+                                <select id="unit_id" name="unit_id" required value={unitId} onChange={(e) => setUnitId(e.target.value)} className={selectClass}>
                                     {units.map((unit) => (
                                         <option key={unit.id} value={unit.id}>
                                             {unit.name} ({unit.abbreviation})
@@ -101,8 +109,8 @@ export default function ProductsEdit({ product, categories, units }: Props) {
                                     name="reorder_point"
                                     type="number"
                                     min="0"
-                                    step="0.01"
-                                    defaultValue={product.reorder_point}
+                                    step={reorderStep}
+                                    defaultValue={formatQty(product.reorder_point, product.unit?.allows_fraction)}
                                 />
                                 <InputError message={errors.reorder_point} />
                             </div>

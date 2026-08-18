@@ -71,6 +71,16 @@ class UnitTest extends TestCase
         $this->assertDatabaseHas('units', ['abbreviation' => 'lusin']);
     }
 
+    public function test_store_saves_allows_fraction_flag(): void
+    {
+        $this->actingAsRole('staff_gudang');
+
+        $this->post(route('units.store'), ['name' => 'Gram', 'abbreviation' => 'gr', 'allows_fraction' => true])
+            ->assertRedirect(route('units.index'));
+
+        $this->assertDatabaseHas('units', ['abbreviation' => 'gr', 'allows_fraction' => true]);
+    }
+
     public function test_store_rejects_duplicate_abbreviation(): void
     {
         $this->actingAsRole('admin');

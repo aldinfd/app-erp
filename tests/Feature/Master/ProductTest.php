@@ -135,6 +135,40 @@ class ProductTest extends TestCase
         $this->assertSame('0.00', $product->stock_qty);
     }
 
+    public function test_store_rejects_fractional_reorder_point_for_non_fraction_unit(): void
+    {
+        $this->actingAsRole('admin');
+
+        $unit = Unit::factory()->create(['allows_fraction' => false]);
+
+        $this->post(route('products.store'), [
+            'sku' => 'SKU-BULAT-001',
+            'name' => 'Produk Bulat',
+            'unit_id' => $unit->id,
+            'reorder_point' => 10.5,
+            'is_active' => true,
+        ])->assertSessionHasErrors('reorder_point');
+
+        $this->assertSame(0, Product::count());
+    }
+
+    public function test_store_allows_fractional_reorder_point_for_fraction_unit(): void
+    {
+        $this->actingAsRole('admin');
+
+        $kilogram = Unit::factory()->create(['allows_fraction' => true]);
+
+        $this->post(route('products.store'), [
+            'sku' => 'SKU-KG-001',
+            'name' => 'Gula Merah',
+            'unit_id' => $kilogram->id,
+            'reorder_point' => 2.5,
+            'is_active' => true,
+        ])->assertRedirect(route('products.index'));
+
+        $this->assertSame(2.5, (float) Product::query()->where('sku', 'SKU-KG-001')->value('reorder_point'));
+    }
+
     public function test_store_rejects_duplicate_sku(): void
     {
         $this->actingAsRole('admin');

@@ -10,11 +10,24 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Models\Concerns\HasActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
-#[Fillable(['name', 'abbreviation'])]
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $abbreviation
+ * @property bool $allows_fraction true = qty boleh pecahan (mis. kg)
+ */
+#[Fillable(['name', 'abbreviation', 'allows_fraction'])]
 class Unit extends Model
 {
     /** @use HasFactory<UnitFactory> */
     use HasActivity, HasFactory;
+
+    protected function casts(): array
+    {
+        return [
+            'allows_fraction' => 'boolean',
+        ];
+    }
 
     public function products(): HasMany
     {

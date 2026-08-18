@@ -93,6 +93,7 @@ Satuan produk.
 | id | BIGINT UNSIGNED PK | no | auto | |
 | name | VARCHAR(50) | no | | Nama lengkap ("Kilogram") |
 | abbreviation | VARCHAR(10) | no | | Singkatan ("kg") |
+| allows_fraction | TINYINT(1) | no | 0 | 1 = qty boleh pecahan (kg). Qty stok & reorder point satuan lain wajib bulat — divalidasi aplikasi (rule `WholeNumber`), kolom tetap DECIMAL. Ditambah 2026-08-18 |
 | created_at / updated_at | TIMESTAMP | yes | NULL | |
 
 - UNIQUE: `abbreviation`

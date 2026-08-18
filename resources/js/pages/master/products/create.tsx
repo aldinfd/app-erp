@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Form, Head, Link } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,12 @@ type Props = {
 const selectClass = 'border-input bg-background h-9 rounded-md border px-3 text-sm';
 
 export default function ProductsCreate({ categories, units }: Props) {
+    const [unitId, setUnitId] = React.useState('');
+
+    // Reorder point hanya boleh pecahan bila satuannya bisa pecahan (mis. kg).
+    const selectedUnit = units.find((unit) => String(unit.id) === unitId);
+    const reorderStep = selectedUnit?.allows_fraction ? '0.01' : '1';
+
     return (
         <>
             <Head title="Tambah Produk" />
@@ -51,7 +58,7 @@ export default function ProductsCreate({ categories, units }: Props) {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="unit_id">Satuan</Label>
-                                <select id="unit_id" name="unit_id" required defaultValue="" className={selectClass}>
+                                <select id="unit_id" name="unit_id" required value={unitId} onChange={(e) => setUnitId(e.target.value)} className={selectClass}>
                                     <option value="">— Pilih satuan —</option>
                                     {units.map((unit) => (
                                         <option key={unit.id} value={unit.id}>
@@ -77,7 +84,7 @@ export default function ProductsCreate({ categories, units }: Props) {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="reorder_point">Reorder Point</Label>
-                                <Input id="reorder_point" name="reorder_point" type="number" min="0" step="0.01" />
+                                <Input id="reorder_point" name="reorder_point" type="number" min="0" step={reorderStep} />
                                 <InputError message={errors.reorder_point} />
                             </div>
 

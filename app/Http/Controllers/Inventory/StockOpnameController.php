@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Inventory;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Rules\WholeNumber;
 use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class StockOpnameController extends Controller
         $q = $request->query('q');
 
         $products = Product::query()
-            ->with('unit:id,abbreviation')
+            ->with('unit:id,abbreviation,allows_fraction')
             ->when($q, fn ($query) => $query
                 ->where(fn ($where) => $where
                     ->where('sku', 'like', "%{$q}%")
@@ -38,13 +39,23 @@ class StockOpnameController extends Controller
 
     public function adjust(Request $request, StockService $stockService): RedirectResponse
     {
+        // Ambil produk dulu (null-safe) supaya aturan new_qty bisa menyesuaikan satuan:
+        // bilangan bulat kecuali satuannya boleh pecahan (mis. kg).
+        $product = Product::query()
+            ->with('unit:id,abbreviation,allows_fraction')
+            ->find($request->input('product_id'));
+
         $validated = $request->validate([
             'product_id' => ['required', 'integer', 'exists:products,id'],
-            'new_qty' => ['required', 'numeric', 'min:0', 'max:9999999999'],
+            'new_qty' => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:9999999999',
+                ...($product?->unit?->allows_fraction ? [] : [new WholeNumber]),
+            ],
             'note' => ['required', 'string', 'max:255'],
         ]);
-
-        $product = Product::findOrFail($validated['product_id']);
 
         $movement = $stockService->adjust(
             $product,
@@ -59,8 +70,13 @@ class StockOpnameController extends Controller
                 ->with('error', 'Tidak ada perubahan: stok baru sama dengan stok saat ini.');
         }
 
+        // Tampilkan angka bulat untuk satuan non-pecahan (after_qty bertipe "8.00").
+        $afterQty = $product->unit?->allows_fraction
+            ? $movement->after_qty
+            : (string) (float) $movement->after_qty;
+
         return redirect()
             ->route('stock-opname.index')
-            ->with('success', 'Stok '.$product->name.' disesuaikan menjadi '.$movement->after_qty.'.');
+            ->with('success', 'Stok '.$product->name.' disesuaikan menjadi '.$afterQty.'.');
     }
 }

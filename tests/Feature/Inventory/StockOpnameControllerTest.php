@@ -4,6 +4,7 @@ namespace Tests\Feature\Inventory;
 
 use App\Models\Product;
 use App\Models\StockMovement;
+use App\Models\Unit;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -64,6 +65,44 @@ class StockOpnameControllerTest extends TestCase
         $this->assertSame('stock_opname', $movement->reference_type);
         $this->assertSame($user->id, $movement->user_id);
         $this->assertSame('Opname: 3 pcs rusak', $movement->note);
+    }
+
+    public function test_adjust_rejects_fractional_qty_for_non_fraction_unit(): void
+    {
+        $this->actingAsRole('admin');
+
+        $product = Product::factory()->create(['stock_qty' => 10]); // satuan factory default: tidak pecahan
+
+        $this->from(route('stock-opname.index'))
+            ->post(route('stock-opname.adjust'), [
+                'product_id' => $product->id,
+                'new_qty' => 8.5,
+                'note' => 'Opname desimal',
+            ])->assertSessionHasErrors('new_qty');
+
+        $this->assertSame(0, StockMovement::count());
+        $this->assertSame(10.0, (float) $product->fresh()->stock_qty);
+    }
+
+    public function test_adjust_allows_fractional_qty_for_kilogram(): void
+    {
+        Event::fake();
+        $this->actingAsRole('staff_gudang');
+
+        $kilogram = Unit::factory()->create(['allows_fraction' => true]);
+        $product = Product::factory()->create(['stock_qty' => 10, 'unit_id' => $kilogram->id]);
+
+        $this->post(route('stock-opname.adjust'), [
+            'product_id' => $product->id,
+            'new_qty' => 8.75,
+            'note' => 'Opname timbangan',
+        ])->assertRedirect(route('stock-opname.index'));
+
+        $product = $product->fresh();
+        $movement = StockMovement::query()->first();
+
+        $this->assertSame(8.75, (float) $product->stock_qty);
+        $this->assertSame(-1.25, (float) $movement->qty);
     }
 
     public function test_adjust_with_same_qty_flash_error_without_movement(): void

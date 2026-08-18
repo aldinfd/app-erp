@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { create, destroy, edit, index } from '@/routes/products';
+import { formatQty } from '@/lib/utils';
 import type { Category, Paginated, Product, Unit } from '@/types';
 
 type Props = {
@@ -108,7 +109,9 @@ export default function ProductsIndex({ products, categories, filters }: Props) 
                                     <td className="px-4 py-2">{product.unit?.abbreviation ?? '-'}</td>
                                     <td className="px-4 py-2 text-right">{product.cost_price}</td>
                                     <td className="px-4 py-2 text-right">{product.selling_price}</td>
-                                    <td className="px-4 py-2 text-right">{product.stock_qty}</td>
+                                    <td className="px-4 py-2 text-right font-mono">
+                                        {formatQty(product.stock_qty, product.unit?.allows_fraction)}
+                                    </td>
                                     <td className="px-4 py-2">
                                         <Badge variant={product.is_active ? 'default' : 'secondary'}>
                                             {product.is_active ? 'Aktif' : 'Nonaktif'}

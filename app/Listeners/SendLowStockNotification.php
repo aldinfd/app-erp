@@ -16,12 +16,15 @@ class SendLowStockNotification
     {
         $title = 'Stok menipis: '.$event->product->name;
 
+        // Angka bulat untuk satuan non-pecahan (pcs), 2 desimal untuk satuan seperti kg.
+        $decimals = $event->product->unit?->allows_fraction ? 2 : 0;
+
         $body = sprintf(
             'Stok %s (%s) tersisa %s, sudah menyentuh reorder point %s. Segera lakukan pembelian ke vendor.',
             $event->product->name,
             $event->product->sku,
-            number_format($event->stockQty, 2, ',', '.'),
-            number_format((float) $event->product->reorder_point, 2, ',', '.'),
+            number_format($event->stockQty, $decimals, ',', '.'),
+            number_format((float) $event->product->reorder_point, $decimals, ',', '.'),
         );
 
         User::role(['admin', 'staff_gudang'])->get()->each(
