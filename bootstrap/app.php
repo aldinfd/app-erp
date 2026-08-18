@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
+        // HTTP notification Midtrans datang dari server Midtrans tanpa CSRF
+        // token — keaslian dijaga signature sha512 (PaymentService).
+        $middleware->validateCsrfTokens(except: ['webhooks/midtrans']);
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,

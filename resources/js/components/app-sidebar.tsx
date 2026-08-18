@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, ClipboardCheck, FolderGit2, History, Landmark, LayoutGrid, Package, Ruler, Tag, UserSquare, Users } from 'lucide-react';
+import { BookOpen, ClipboardCheck, FolderGit2, History, Landmark, LayoutGrid, Package, ReceiptText, Ruler, Tag, UserSquare, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -18,6 +18,7 @@ import { index as categoriesIndex } from '@/routes/categories';
 import { index as chartOfAccountsIndex } from '@/routes/chart-of-accounts';
 import { index as customersIndex } from '@/routes/customers';
 import { index as productsIndex } from '@/routes/products';
+import { index as salesOrdersIndex } from '@/routes/sales-orders';
 import { index as stockMovementsIndex } from '@/routes/stock-movements';
 import { index as stockOpnameIndex } from '@/routes/stock-opname';
 import { index as unitsIndex } from '@/routes/units';
@@ -59,6 +60,12 @@ const mainNavItems: NavItem[] = [
         href: stockOpnameIndex.url(),
         icon: ClipboardCheck,
         roles: ['admin', 'staff_gudang'],
+    },
+    {
+        title: 'Sales Order',
+        href: salesOrdersIndex.url(),
+        icon: ReceiptText,
+        roles: ['admin', 'staff_finance'],
     },
     {
         title: 'Customer',

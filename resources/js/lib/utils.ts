@@ -20,3 +20,27 @@ export function formatQty(value: string | number, allowsFraction = false): strin
 
     return allowsFraction ? num.toFixed(2) : String(Math.round(num));
 }
+
+/**
+ * Format uang Rupiah tanpa desimal (IDR tidak pakai sen; harga seeder
+ * rupiah bulat). Props tetap string decimal — konversi hanya untuk tampilan.
+ */
+export function formatCurrency(value: string | number): string {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(Number(value));
+}
+
+/**
+ * Format tanggal ISO (hasil cast date/datetime Eloquent) ke "18 Agu 2026".
+ */
+export function formatDate(value: string): string {
+    return new Date(value).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    });
+}
