@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Inventory\StockMovementController;
+use App\Http\Controllers\Inventory\StockOpnameController;
 use App\Http\Controllers\Master\CategoryController;
 use App\Http\Controllers\Master\ChartOfAccountController;
 use App\Http\Controllers\Master\CustomerController;
@@ -26,13 +28,18 @@ Route::middleware(['auth', 'verified', 'role:admin|staff_gudang|staff_finance'])
 
 /*
 |----------------------------------------------------------------------
-| Master data gudang — admin & staff_gudang
+| Master data & inventory gudang — admin & staff_gudang
 |----------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified', 'role:admin|staff_gudang'])->group(function () {
     Route::resource('categories', CategoryController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::resource('units', UnitController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::resource('products', ProductController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+
+    // Riwayat stok hanya baca; opname mengoreksi stok lewat StockService.
+    Route::get('stock-movements', [StockMovementController::class, 'index'])->name('stock-movements.index');
+    Route::get('stock-opname', [StockOpnameController::class, 'index'])->name('stock-opname.index');
+    Route::post('stock-opname', [StockOpnameController::class, 'adjust'])->name('stock-opname.adjust');
 });
 
 /*

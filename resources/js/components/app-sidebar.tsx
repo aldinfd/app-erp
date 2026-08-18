@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, Landmark, LayoutGrid, Package, Ruler, Tag, UserSquare, Users } from 'lucide-react';
+import { BookOpen, ClipboardCheck, FolderGit2, History, Landmark, LayoutGrid, Package, Ruler, Tag, UserSquare, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -18,6 +18,8 @@ import { index as categoriesIndex } from '@/routes/categories';
 import { index as chartOfAccountsIndex } from '@/routes/chart-of-accounts';
 import { index as customersIndex } from '@/routes/customers';
 import { index as productsIndex } from '@/routes/products';
+import { index as stockMovementsIndex } from '@/routes/stock-movements';
+import { index as stockOpnameIndex } from '@/routes/stock-opname';
 import { index as unitsIndex } from '@/routes/units';
 import { index as vendorsIndex } from '@/routes/vendors';
 import type { NavItem } from '@/types';
@@ -44,6 +46,18 @@ const mainNavItems: NavItem[] = [
         title: 'Satuan',
         href: unitsIndex.url(),
         icon: Ruler,
+        roles: ['admin', 'staff_gudang'],
+    },
+    {
+        title: 'Riwayat Stok',
+        href: stockMovementsIndex.url(),
+        icon: History,
+        roles: ['admin', 'staff_gudang'],
+    },
+    {
+        title: 'Stock Opname',
+        href: stockOpnameIndex.url(),
+        icon: ClipboardCheck,
         roles: ['admin', 'staff_gudang'],
     },
     {

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Unit;
+use App\Services\StockService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -57,11 +58,42 @@ class MasterDataSeeder extends Seeder
             );
         }
 
+        $this->seedInitialStock();
+
         $this->command?->info(sprintf(
             'Master data: %d kategori, %d satuan, %d produk.',
             DB::table('categories')->count(),
             DB::table('units')->count(),
             DB::table('products')->count(),
         ));
+    }
+
+    /**
+     * Stok awal lewat StockService agar tercatat di stock_movements (Phase 3).
+     * Idempotent: hanya produk yang belum punya riwayat stok.
+     *
+     * SKU-AK-001 sengaja di bawah reorder point untuk demo kondisi stok menipis.
+     */
+    private function seedInitialStock(): void
+    {
+        $stockService = app(StockService::class);
+
+        $initialStocks = [
+            'SKU-PK-001' => 40,
+            'SKU-PK-002' => 8,
+            'SKU-EL-001' => 15,
+            'SKU-EL-002' => 6,
+            'SKU-MM-001' => 60,
+            'SKU-MM-002' => 120.5,
+            'SKU-AK-001' => 4,
+        ];
+
+        foreach ($initialStocks as $sku => $qty) {
+            $product = Product::query()->where('sku', $sku)->first();
+
+            if ($product !== null && ! $product->stockMovements()->exists()) {
+                $stockService->add($product, $qty, note: 'Stok awal (seeder)');
+            }
+        }
     }
 }
