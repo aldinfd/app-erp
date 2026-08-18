@@ -36,6 +36,14 @@ return [
         'is_3ds' => env('MIDTRANS_IS_3DS', true),
     ],
 
+    // Ongkir RajaOngkir — integrasi fiturnya ditunda (keputusan Phase 4:
+    // shipping = 0); key dipasang dulu supaya siap dipakai saat diaktifkan.
+    // base_url default Starter (free); Basic/Pro ganti lewat env.
+    'rajaongkir' => [
+        'key' => env('RAJAONGKIR_API_KEY'),
+        'base_url' => env('RAJAONGKIR_BASE_URL', 'https://api.rajaongkir.com/starter'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

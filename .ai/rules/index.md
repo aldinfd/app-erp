@@ -6,4 +6,5 @@ Before planning or editing, find the row whose globs match the file's path and r
 | --- | --- |
 | app/Http/Controllers/** | .ai/rules/controllers.md |
 | **/*.php | .ai/rules/general.md |
+| resources/js/pages/** | .ai/rules/pages.md |
 | routes/** | .ai/rules/routes.md |
