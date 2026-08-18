@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Unit;
+use App\Models\Vendor;
 use App\Services\StockService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -61,13 +62,25 @@ class MasterDataSeeder extends Seeder
             );
         }
 
+        $vendors = [
+            ['name' => 'CV Sumber Tekstil', 'email' => 'sales@sumbertekstil.id', 'phone' => '021-555-0101', 'address' => 'Jl. Tekstil No. 12, Bandung'],
+            ['name' => 'PT Elektronik Nusantara', 'email' => 'order@elektroniknusantara.co.id', 'phone' => '021-555-0102', 'address' => 'Jl. Industri Raya No. 8, Jakarta'],
+            ['name' => 'UD Kopi Sejahtera', 'email' => 'ud.kopisejahtera@gmail.com', 'phone' => '0271-555-0103', 'address' => 'Jl. Perkebunan No. 5, Solo'],
+            ['name' => 'Toko Perlengkapan Digital', 'phone' => '0812-3456-7890', 'address' => 'Ruko Digital Mall Blok B2, Surabaya'],
+        ];
+
+        foreach ($vendors as $vendor) {
+            Vendor::firstOrCreate(['name' => $vendor['name']], $vendor);
+        }
+
         $this->seedInitialStock();
 
         $this->command?->info(sprintf(
-            'Master data: %d kategori, %d satuan, %d produk.',
+            'Master data: %d kategori, %d satuan, %d produk, %d vendor.',
             DB::table('categories')->count(),
             DB::table('units')->count(),
             DB::table('products')->count(),
+            DB::table('vendors')->count(),
         ));
     }
 

@@ -4,6 +4,7 @@ namespace Tests\Feature\Master;
 
 use App\Models\User;
 use App\Models\Vendor;
+use Database\Seeders\MasterDataSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
@@ -38,6 +39,20 @@ class VendorTest extends TestCase
                     ->component('master/vendors/index')
                     ->has('vendors.data', 3),
             );
+    }
+
+    /**
+     * Seeder wajib menyediakan vendor aktif — tanpa itu dropdown
+     * form Purchase Order kosong (kejadian 2026-08-18).
+     */
+    public function test_master_data_seeder_provides_active_vendors(): void
+    {
+        $this->seed(MasterDataSeeder::class);
+
+        $vendors = Vendor::query()->where('is_active', true)->get();
+
+        $this->assertGreaterThanOrEqual(4, $vendors->count());
+        $this->assertSame(0, Vendor::query()->where('is_active', false)->count());
     }
 
     public function test_index_searches_and_filters_by_status(): void
