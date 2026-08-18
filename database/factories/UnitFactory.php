@@ -16,7 +16,9 @@ class UnitFactory extends Factory
 
         return [
             'name' => ucfirst($name),
-            'abbreviation' => substr($name, 0, 3),
+            // 3 huruf pertama saja bisa tabrakan antar kata berbeda
+            // (author/autumn → "aut") → tambahkan angka agar selalu unik.
+            'abbreviation' => substr($name, 0, 3).fake()->unique()->numberBetween(100, 999),
         ];
     }
 }

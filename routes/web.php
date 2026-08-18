@@ -8,6 +8,8 @@ use App\Http\Controllers\Master\CustomerController;
 use App\Http\Controllers\Master\ProductController;
 use App\Http\Controllers\Master\UnitController;
 use App\Http\Controllers\Master\VendorController;
+use App\Http\Controllers\Purchase\PurchaseOrderController;
+use App\Http\Controllers\Purchase\VendorInvoiceController;
 use App\Http\Controllers\Sales\SalesOrderController;
 use App\Http\Controllers\Storefront\CatalogController;
 use App\Http\Controllers\Storefront\CheckoutController;
@@ -73,6 +75,43 @@ Route::middleware(['auth', 'verified', 'role:admin|staff_finance'])->group(funct
     Route::get('sales-orders', [SalesOrderController::class, 'index'])->name('sales-orders.index');
     Route::get('sales-orders/{sales_order}', [SalesOrderController::class, 'show'])->name('sales-orders.show');
     Route::post('sales-orders/{sales_order}/cancel', [SalesOrderController::class, 'cancel'])->name('sales-orders.cancel');
+});
+
+/*
+|----------------------------------------------------------------------
+| Purchase order gudang — admin & staff_gudang (buat/pesan/terima/batal).
+| Didaftarkan sebelum group lihat agar GET create tidak tertangkap
+| route show {purchase_order}.
+|----------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'role:admin|staff_gudang'])->group(function () {
+    Route::get('purchase-orders/create', [PurchaseOrderController::class, 'create'])->name('purchase-orders.create');
+    Route::post('purchase-orders', [PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
+    Route::post('purchase-orders/{purchase_order}/ordered', [PurchaseOrderController::class, 'markOrdered'])->name('purchase-orders.ordered');
+    Route::post('purchase-orders/{purchase_order}/receive', [PurchaseOrderController::class, 'receive'])->name('purchase-orders.receive');
+    Route::post('purchase-orders/{purchase_order}/cancel', [PurchaseOrderController::class, 'cancel'])->name('purchase-orders.cancel');
+});
+
+/*
+|----------------------------------------------------------------------
+| Purchase order lihat — semua role internal (finance perlu membuka PO
+| untuk mencatat invoice vendor & pembayaran).
+|----------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'role:admin|staff_gudang|staff_finance'])->group(function () {
+    Route::get('purchase-orders', [PurchaseOrderController::class, 'index'])->name('purchase-orders.index');
+    Route::get('purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show'])->name('purchase-orders.show');
+});
+
+/*
+|----------------------------------------------------------------------
+| Invoice vendor & pembayaran — admin & staff_finance (requirement:
+| Staff Finance kelola pembayaran & invoice).
+|----------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'role:admin|staff_finance'])->group(function () {
+    Route::post('purchase-orders/{purchase_order}/vendor-invoice', [VendorInvoiceController::class, 'store'])->name('vendor-invoices.store');
+    Route::post('vendor-invoices/{vendor_invoice}/payments', [VendorInvoiceController::class, 'storePayment'])->name('vendor-invoices.payments.store');
 });
 
 require __DIR__.'/settings.php';

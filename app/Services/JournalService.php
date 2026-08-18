@@ -7,6 +7,8 @@ use App\Models\JournalEntry;
 use App\Models\JournalLine;
 use App\Models\JournalMapping;
 use App\Models\Payment;
+use App\Models\PurchaseOrder;
+use App\Models\VendorPayment;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use RuntimeException;
@@ -86,18 +88,10 @@ class JournalService
     {
         $order = $payment->invoice->salesOrder;
 
-        $mappings = JournalMapping::query()
-            ->where('transaction_type', JournalMapping::TRANSACTION_TYPE_SALES_PAYMENT)
-            ->get()
-            ->keyBy('account_key');
-
-        foreach ([JournalMapping::KEY_KAS_BANK, JournalMapping::KEY_PENDAPATAN_PENJUALAN] as $requiredKey) {
-            if (! $mappings->has($requiredKey)) {
-                throw new RuntimeException(
-                    "Mapping jurnal sales_payment/{$requiredKey} belum di-seed (JournalMappingSeeder).",
-                );
-            }
-        }
+        $mappings = $this->requireMappings(
+            JournalMapping::TRANSACTION_TYPE_SALES_PAYMENT,
+            [JournalMapping::KEY_KAS_BANK, JournalMapping::KEY_PENDAPATAN_PENJUALAN],
+        );
 
         $lines = [
             ['account_id' => $mappings[JournalMapping::KEY_KAS_BANK]->account_id, 'debit' => (float) $order->grand_total, 'credit' => 0],
@@ -105,7 +99,7 @@ class JournalService
         ];
 
         if ((float) $order->tax > 0) {
-            if (! $mappings->has(JournalMapping::KEY_UTANG_PPN)) {
+            if (! isset($mappings[JournalMapping::KEY_UTANG_PPN])) {
                 throw new RuntimeException(
                     'Mapping jurnal sales_payment/'.JournalMapping::KEY_UTANG_PPN.' belum di-seed (JournalMappingSeeder).',
                 );
@@ -123,6 +117,90 @@ class JournalService
             referenceId: $payment->id,
             postedBy: null,
         );
+    }
+
+    /**
+     * Auto-jurnal penerimaan barang PO: Persediaan (D) = grand_total,
+     * Hutang Vendor (C) = grand_total (pajak beli masuk ke persediaan —
+     * schema-database.md §8.3 tanpa akun PPN masukan). Akun dari
+     * journal_mappings (transaction_type = purchase_received).
+     *
+     * @throws RuntimeException bila mapping wajib belum di-seed
+     */
+    public function postPurchaseReceived(PurchaseOrder $order, ?int $postedBy = null): JournalEntry
+    {
+        $mappings = $this->requireMappings(
+            JournalMapping::TRANSACTION_TYPE_PURCHASE_RECEIVED,
+            [JournalMapping::KEY_PERSEDIAAN, JournalMapping::KEY_HUTANG_VENDOR],
+        );
+
+        return $this->post(
+            source: JournalEntry::SOURCE_PURCHASE_RECEIVED,
+            entryDate: today()->toDateString(),
+            description: "Penerimaan barang {$order->po_number}",
+            lines: [
+                ['account_id' => $mappings[JournalMapping::KEY_PERSEDIAAN]->account_id, 'debit' => (float) $order->grand_total, 'credit' => 0],
+                ['account_id' => $mappings[JournalMapping::KEY_HUTANG_VENDOR]->account_id, 'debit' => 0, 'credit' => (float) $order->grand_total],
+            ],
+            referenceType: 'purchase_order',
+            referenceId: $order->id,
+            postedBy: $postedBy,
+        );
+    }
+
+    /**
+     * Auto-jurnal pembayaran vendor: Hutang Vendor (D) = amount payment,
+     * Kas/Bank (C) = amount payment (per payment — cicilan tetap balance
+     * per entry). Akun dari journal_mappings (transaction_type =
+     * purchase_payment).
+     *
+     * @throws RuntimeException bila mapping wajib belum di-seed
+     */
+    public function postPurchasePayment(VendorPayment $payment, ?int $postedBy = null): JournalEntry
+    {
+        $mappings = $this->requireMappings(
+            JournalMapping::TRANSACTION_TYPE_PURCHASE_PAYMENT,
+            [JournalMapping::KEY_HUTANG_VENDOR, JournalMapping::KEY_KAS_BANK],
+        );
+
+        return $this->post(
+            source: JournalEntry::SOURCE_PURCHASE_PAYMENT,
+            entryDate: $payment->paid_at->toDateString(),
+            description: 'Pembayaran '.$payment->vendorInvoice->vendor_invoice_number,
+            lines: [
+                ['account_id' => $mappings[JournalMapping::KEY_HUTANG_VENDOR]->account_id, 'debit' => (float) $payment->amount, 'credit' => 0],
+                ['account_id' => $mappings[JournalMapping::KEY_KAS_BANK]->account_id, 'debit' => 0, 'credit' => (float) $payment->amount],
+            ],
+            referenceType: 'vendor_payment',
+            referenceId: $payment->id,
+            postedBy: $postedBy,
+        );
+    }
+
+    /**
+     * Ambil mapping akun wajib untuk satu transaction_type.
+     *
+     * @param  list<string>  $requiredKeys
+     * @return array<string, JournalMapping>
+     *
+     * @throws RuntimeException bila ada key yang belum di-seed
+     */
+    private function requireMappings(string $transactionType, array $requiredKeys): array
+    {
+        $mappings = JournalMapping::query()
+            ->where('transaction_type', $transactionType)
+            ->get()
+            ->keyBy('account_key');
+
+        foreach ($requiredKeys as $requiredKey) {
+            if (! $mappings->has($requiredKey)) {
+                throw new RuntimeException(
+                    "Mapping jurnal {$transactionType}/{$requiredKey} belum di-seed (JournalMappingSeeder).",
+                );
+            }
+        }
+
+        return $mappings->all();
     }
 
     /**

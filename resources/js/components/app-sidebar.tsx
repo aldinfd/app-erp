@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, ClipboardCheck, FolderGit2, History, Landmark, LayoutGrid, Package, ReceiptText, Ruler, Tag, UserSquare, Users } from 'lucide-react';
+import { BookOpen, ClipboardCheck, FolderGit2, History, Landmark, LayoutGrid, Package, ReceiptText, Ruler, Tag, Truck, UserSquare, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -18,6 +18,7 @@ import { index as categoriesIndex } from '@/routes/categories';
 import { index as chartOfAccountsIndex } from '@/routes/chart-of-accounts';
 import { index as customersIndex } from '@/routes/customers';
 import { index as productsIndex } from '@/routes/products';
+import { index as purchaseOrdersIndex } from '@/routes/purchase-orders';
 import { index as salesOrdersIndex } from '@/routes/sales-orders';
 import { index as stockMovementsIndex } from '@/routes/stock-movements';
 import { index as stockOpnameIndex } from '@/routes/stock-opname';
@@ -66,6 +67,13 @@ const mainNavItems: NavItem[] = [
         href: salesOrdersIndex.url(),
         icon: ReceiptText,
         roles: ['admin', 'staff_finance'],
+    },
+    {
+        title: 'Purchase Order',
+        href: purchaseOrdersIndex.url(),
+        icon: Truck,
+        // Gudang kelola PO; finance buka PO untuk catat invoice/pembayaran.
+        roles: ['admin', 'staff_gudang', 'staff_finance'],
     },
     {
         title: 'Customer',
