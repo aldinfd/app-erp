@@ -95,12 +95,12 @@ class PurchaseOrderController extends Controller
             'vendor:id,name,email,phone,address',
             'items.product:id,sku,name,unit_id',
             'items.product.unit:id,abbreviation,allows_fraction',
-            'vendorInvoice.payments' => fn ($query) => $query->orderByDesc('id'),
+            'invoice.payments' => fn ($query) => $query->orderByDesc('id'),
         ]);
 
         $isWarehouse = $request->user()->hasAnyRole(['admin', 'staff_gudang']);
         $isFinance = $request->user()->hasAnyRole(['admin', 'staff_finance']);
-        $invoice = $purchaseOrder->vendorInvoice;
+        $invoice = $purchaseOrder->invoice;
 
         return Inertia::render('purchase-orders/show', [
             'order' => $purchaseOrder,

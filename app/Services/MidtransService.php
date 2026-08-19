@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\SalesOrder;
+use Exception;
 use Midtrans\Config;
 use Midtrans\Snap;
+use Midtrans\Transaction;
 
 /**
  * Integrasi Midtrans Snap — diisolasi di service agar mudah di-swap/mock
@@ -17,7 +19,7 @@ class MidtransService
      * Config statis di-set dari config/services.php pada setiap panggilan
      * agar tidak memakai state basi antar request/test.
      *
-     * @throws \Exception dibalut Midtrans (server key kosong, jaringan, API error)
+     * @throws Exception dibalut Midtrans (server key kosong, jaringan, API error)
      */
     public function createSnapTransaction(SalesOrder $order): string
     {
@@ -42,6 +44,27 @@ class MidtransService
         ];
 
         return Snap::createTransaction($params)->redirect_url;
+    }
+
+    /**
+     * Ambil status transaksi langsung dari Midtrans Status API (pull).
+     * Dipakai saat webhook belum/tidak sampai — mis. dev lokal tanpa URL
+     * publik, atau produksi saat notifikasi terlambat.
+     *
+     * @return array<string, mixed>|null payload status (struktur sama dengan
+     *                                   notification), null bila gagal/tidak ditemukan
+     */
+    public function getTransactionStatus(string $orderId): ?array
+    {
+        $this->configure();
+
+        try {
+            $status = Transaction::status($orderId);
+        } catch (Exception) {
+            return null;
+        }
+
+        return json_decode(json_encode($status), true);
     }
 
     /**

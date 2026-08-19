@@ -10,12 +10,16 @@ use App\Models\SalesOrder;
 use App\Models\Unit;
 use App\Models\User;
 use App\Notifications\SystemNotification;
+use App\Services\CheckoutService;
 use App\Services\MidtransService;
+use Database\Seeders\ChartOfAccountSeeder;
+use Database\Seeders\JournalMappingSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
+use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class CheckoutTest extends TestCase
@@ -124,6 +128,25 @@ class CheckoutTest extends TestCase
         );
     }
 
+    /**
+     * Request Inertia (XHR) tidak bisa mengikuti 302 lintas domain ke Midtrans
+     * (diblokir CORS → network error di browser). Harus 409 + X-Inertia-Location
+     * agar client melakukan window.location penuh.
+     */
+    public function test_inertia_checkout_returns_409_location_header_for_midtrans_redirect(): void
+    {
+        $product = $this->makeProduct();
+
+        $this->mock(MidtransService::class)
+            ->shouldReceive('createSnapTransaction')
+            ->once()
+            ->andReturn('https://app.sandbox.midtrans.com/snap/pay/test-token');
+
+        $this->post('/checkout', $this->checkoutPayload([['product_id' => $product->id, 'qty' => 1]]), ['X-Inertia' => 'true'])
+            ->assertStatus(409)
+            ->assertHeader('X-Inertia-Location', 'https://app.sandbox.midtrans.com/snap/pay/test-token');
+    }
+
     public function test_checkout_rejects_when_stock_insufficient(): void
     {
         $product = $this->makeProduct(stockQty: 3);
@@ -171,7 +194,11 @@ class CheckoutTest extends TestCase
     {
         $product = $this->makeProduct();
 
-        // Tanpa mock & tanpa server key — MidtransService throw sebelum network call.
+        // Mock gagal deterministik — tidak bergantung ada/tidaknya server key di env.
+        $this->mock(MidtransService::class)
+            ->shouldReceive('createSnapTransaction')
+            ->andThrow(new \RuntimeException('gateway down'));
+
         $response = $this->post('/checkout', $this->checkoutPayload([['product_id' => $product->id, 'qty' => 1]]));
 
         $order = SalesOrder::query()->sole();
@@ -215,5 +242,65 @@ class CheckoutTest extends TestCase
         }
 
         $this->post('/checkout', $payload)->assertStatus(429);
+    }
+
+    /**
+     * Helper: order pending via jalur checkout asli (untuk tes halaman struk).
+     */
+    private function makePendingOrder(Product $product): SalesOrder
+    {
+        return app(CheckoutService::class)->createOrder(
+            ['name' => 'Budi Santoso', 'email' => 'budi@example.com', 'phone' => '08123456789', 'address' => 'Jl. Mawar No. 1'],
+            [['product_id' => $product->id, 'qty' => 1]],
+        );
+    }
+
+    public function test_finish_page_syncs_pending_payment_from_midtrans(): void
+    {
+        // Cascade paid (stok + jurnal) butuh CoA + mapping akun.
+        $this->seed([ChartOfAccountSeeder::class, JournalMappingSeeder::class]);
+
+        $product = $this->makeProduct();
+        $order = $this->makePendingOrder($product);
+
+        // Webhook belum sampai (mis. dev lokal) — struk menarik status sendiri.
+        $this->mock(MidtransService::class)
+            ->shouldReceive('getTransactionStatus')
+            ->once()
+            ->andReturn([
+                'order_id' => $order->order_number,
+                'transaction_status' => Payment::STATUS_SETTLEMENT,
+                'gross_amount' => '25000.00',
+            ]);
+
+        $this->get(route('payment.finish', ['order_id' => $order->order_number]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('order.order_number', $order->order_number)
+                ->where('order.status', SalesOrder::STATUS_PAID)
+                ->where('order.payment_status', Payment::STATUS_SETTLEMENT));
+
+        $this->assertSame(Payment::STATUS_SETTLEMENT, Payment::query()->sole()->status);
+        $this->assertSame(99.0, (float) $product->fresh()->stock_qty);
+    }
+
+    public function test_finish_page_skips_sync_when_payment_is_not_pending(): void
+    {
+        $product = $this->makeProduct();
+        $order = $this->makePendingOrder($product);
+
+        Payment::query()->sole()->update([
+            'status' => Payment::STATUS_SETTLEMENT,
+            'paid_at' => now(),
+        ]);
+
+        $this->mock(MidtransService::class)
+            ->shouldReceive('getTransactionStatus')
+            ->never();
+
+        $this->get(route('payment.finish', ['order_id' => $order->order_number]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('order.payment_status', Payment::STATUS_SETTLEMENT));
     }
 }

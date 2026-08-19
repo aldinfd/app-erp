@@ -3,7 +3,8 @@
 > Status: ✅ **SELESAI** (18 Agustus 2026)
 > Rencana asli: [plan.md](../../.claude/rules/plan.md) — Phase 5
 > Commit: `d3f39e0` (feat: add purchase module with PO lifecycle, vendor
-> payments and auto-journal)
+> payments and auto-journal) + follow-up `780e7ae` (seeder vendor) —
+> lihat §Perbaikan Pasca-Laporan
 > Tanpa migration baru — tabel purchase sudah ada di migration schema final
 > (2026-08-16); tidak ada keputusan/schema disetujui yang diubah
 
@@ -137,9 +138,30 @@ bisa tabrakan UNIQUE antar kata berbeda → ditambah angka unik.
    entry gabungan. Konsisten dengan jurnal immutable.
 4. **Notifikasi email** — sama seperti Phase 4: lokal pakai `MAIL_MAILER=log`;
    in-app tetap jalan. Produksi perlu domain Resend terverifikasi.
-5. **Blokcer Phase 4 belum selesai**: `MIDTRANS_SERVER_KEY` masih key
-   production (harus `SB-Mid-server-…` untuk sandbox) — uji manual checkout
-   menunggu ini (langkah di laporan Phase 4 §Setup Integrasi #2).
+5. ~~Blocker Midtrans~~ **RESOLVED (19 Agustus 2026)** — key di `.env`
+   terverifikasi sandbox (Snap API sandbox merespons 201; prefix key
+   bukan penanda environment — lihat laporan Phase 6 Catatan #5).
+
+---
+
+## 🔧 Perbaikan Pasca-Laporan (18 Agustus 2026)
+
+Ditemukan saat uji manual setelah laporan terbit:
+
+1. **Dropdown vendor kosong** (commit `780e7ae`) — bukan bug kode: tabel
+   `vendors` belum pernah diisi (seeder hanya menyediakan kategori/satuan/
+   produk). Fix: `MasterDataSeeder` + 4 vendor contoh (semua aktif,
+   idempotent, sudah jalan di MySQL dev) + regression test
+   `VendorTest::test_master_data_seeder_provides_active_vendors`.
+   Full suite kini **206 test — 204 passed, 2 skipped**.
+2. **Input qty menolak angka bulat** — pesan browser
+   *"The two nearest valid values are 9,01 and 10,01"* di form PO.
+   Penyebab: atribut `min="0.01"` dipadukan `step="1"` untuk satuan bulat —
+   browser menghitung nilai valid **mulai dari `min`** sehingga nilai sah
+   menjadi 0,01 / 1,01 / … Fix: `min` mengikuti satuan — `1` untuk bulat,
+   `0.01` untuk pecahan (kg) — di `purchase-orders/create.tsx`.
+   Halaman lain sudah dicek aman (stock opname & reorder point pakai
+   `min="0"`; storefront min/step sudah selaras). **Belum di-commit.**
 
 ---
 
@@ -152,9 +174,9 @@ bisa tabrakan UNIQUE antar kata berbeda → ditambah angka unik.
 | Controller | `app/Http/Controllers/Purchase/{PurchaseOrderController,VendorInvoiceController}.php` |
 | Routes | `routes/web.php` (3 group: gudang / view 3-role / finance) |
 | FE | `resources/js/pages/purchase-orders/{index,create,show,status}` , `types/purchase.ts`, menu `components/app-sidebar.tsx` |
-| Seeder | `database/seeders/JournalMappingSeeder.php` (sudah jalan di MySQL dev) |
+| Seeder | `database/seeders/JournalMappingSeeder.php`, `MasterDataSeeder.php` (vendor contoh) — sudah jalan di MySQL dev |
 | Factory | `database/factories/{PurchaseOrderFactory,VendorInvoiceFactory,VendorPaymentFactory,UnitFactory}.php` |
-| Test | `tests/Feature/Purchase/{PurchaseServiceTest,PurchaseOrderControllerTest}.php` |
+| Test | `tests/Feature/Purchase/{PurchaseServiceTest,PurchaseOrderControllerTest}.php`, `tests/Feature/Master/VendorTest.php` (+1 seeder test) |
 
 ---
 
@@ -181,5 +203,5 @@ bisa tabrakan UNIQUE antar kata berbeda → ditambah angka unik.
    terpasang dari Phase 4–5 — Phase 6 fokus ke UI + pelaporan.
    Pertimbangan yang menunggu keputusan Phase 6: akun pendapatan ongkir &
    COGS/HPP untuk penjualan (lihat laporan Phase 4 Catatan #2).
-2. Sisa blocker Phase 4: ganti `MIDTRANS_SERVER_KEY` ke key sandbox
-   (`SB-Mid-server-…`) lalu uji manual checkout end-to-end.
+2. Uji manual checkout end-to-end (key Midtrans sandbox terverifikasi
+   2026-08-19).

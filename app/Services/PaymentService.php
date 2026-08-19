@@ -45,11 +45,52 @@ class PaymentService
             abort(401, 'Signature Midtrans tidak valid.');
         }
 
+        $this->applyMidtransPayload($payload);
+    }
+
+    /**
+     * Tarik status terbaru langsung dari Midtrans Status API dan terapkan ke
+     * payment lokal. Dipakai saat customer kembali dari Midtrans (halaman
+     * struk) sebelum webhook sampai — mis. dev lokal tanpa URL publik.
+     *
+     * Payload berasal dari API yang kita minta sendiri dengan server key,
+     * jadi tidak perlu verifikasi signature (itu hanya untuk push
+     * notification). Aman dipanggil berkali-kali: markPaid idempoten.
+     */
+    public function syncGatewayStatus(Payment $payment): void
+    {
+        if ($payment->gateway_ref === null) {
+            return;
+        }
+
+        $payload = $this->midtrans->getTransactionStatus($payment->gateway_ref);
+
+        if ($payload === null) {
+            return; // transaksi tidak ditemukan / gangguan jaringan — status lokal dibiarkan
+        }
+
+        try {
+            $this->applyMidtransPayload($payload);
+        } catch (Throwable) {
+            // Halaman struk tidak boleh 500 hanya karena sync gagal —
+            // status lokal tetap pending, webhook tetap jalan normal.
+            Log::warning("Gagal sync status Midtrans untuk order {$payment->gateway_ref}.");
+        }
+    }
+
+    /**
+     * State machine status Midtrans — dipakai webhook (setelah verifikasi
+     * signature) maupun sync dari Status API.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function applyMidtransPayload(array $payload): void
+    {
         $payment = Payment::query()->where('gateway_ref', $payload['order_id'] ?? null)->first();
 
         if ($payment === null) {
             // Order tak dikenal: log saja, tetap 200 agar Midtrans tidak retry storm.
-            Log::warning('Notifikasi Midtrans untuk order tak dikenal.', ['order_id' => $payload['order_id'] ?? null]);
+            Log::warning('Payload Midtrans untuk order tak dikenal.', ['order_id' => $payload['order_id'] ?? null]);
 
             return;
         }

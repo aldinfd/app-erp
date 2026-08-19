@@ -72,7 +72,14 @@ class PurchaseOrder extends Model
         return $this->hasMany(PurchaseOrderItem::class);
     }
 
-    public function vendorInvoice(): HasOne
+    /**
+     * Invoice vendor untuk PO ini (1 PO maksimal 1 invoice). Bernama
+     * "invoice" (bukan "vendorInvoice") — relasi multi-kata di-serialize
+     * Inertia sebagai snake_case sehingga FE tidak pernah menerima key
+     * camelCase-nya (sama seperti kasus relasi "poster" di JournalEntry).
+     * Simetris dengan relasi invoice() milik SalesOrder.
+     */
+    public function invoice(): HasOne
     {
         return $this->hasOne(VendorInvoice::class);
     }

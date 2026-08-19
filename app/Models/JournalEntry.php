@@ -44,7 +44,9 @@ class JournalEntry extends Model
     protected function casts(): array
     {
         return [
-            'entry_date' => 'date',
+            // Format eksplisit agar storage 'Y-m-d' (bukan 'Y-m-d H:i:s') —
+            // query rentang tanggal laporan bisa membandingkan string langsung.
+            'entry_date' => 'date:Y-m-d',
         ];
     }
 
@@ -53,7 +55,11 @@ class JournalEntry extends Model
         return $this->hasMany(JournalLine::class);
     }
 
-    public function postedBy(): BelongsTo
+    /**
+     * User yang mem-posting jurnal. Bernama "poster" (bukan "postedBy")
+     * agar key serialisasi Inertia tidak bertabrakan dengan kolom posted_by.
+     */
+    public function poster(): BelongsTo
     {
         return $this->belongsTo(User::class, 'posted_by');
     }

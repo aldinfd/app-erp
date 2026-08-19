@@ -8,7 +8,9 @@ use App\Models\JournalEntry;
 use App\Models\JournalLine;
 use App\Models\JournalMapping;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\SalesOrder;
+use App\Models\SalesOrderItem;
 use App\Services\JournalService;
 use Database\Seeders\ChartOfAccountSeeder;
 use Database\Seeders\JournalMappingSeeder;
@@ -193,6 +195,38 @@ class JournalServiceTest extends TestCase
             11000.0,
             (float) $lines->firstWhere('account_id', $this->accountId('2-2000'))->credit,
         );
+    }
+
+    public function test_sales_payment_posts_cogs_lines_when_order_has_items(): void
+    {
+        $order = SalesOrder::factory()->create([
+            'subtotal' => 100000,
+            'tax' => 0,
+            'shipping' => 0,
+            'grand_total' => 100000,
+        ]);
+
+        $product = Product::factory()->create(['cost_price' => 15000]);
+
+        SalesOrderItem::create([
+            'sales_order_id' => $order->id,
+            'product_id' => $product->id,
+            'qty' => 2,
+            'unit_price' => 50000,
+            'subtotal' => 100000,
+        ]);
+
+        $invoice = Invoice::factory()->for($order)->create(['amount' => 100000]);
+        $payment = Payment::factory()->for($invoice)->create(['amount' => 100000]);
+
+        $entry = $this->journalService->postSalesPayment($payment);
+
+        // 4 line: kas/pendapatan + HPP/persediaan (COGS = 2 × 15000).
+        $lines = $entry->lines()->get();
+
+        $this->assertSame(4, $lines->count());
+        $this->assertSame(30000.0, (float) $lines->firstWhere('account_id', $this->accountId('5-1000'))->debit);
+        $this->assertSame(30000.0, (float) $lines->firstWhere('account_id', $this->accountId('1-3000'))->credit);
     }
 
     public function test_sales_payment_throws_when_mapping_is_missing(): void

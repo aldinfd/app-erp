@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, ClipboardCheck, FolderGit2, History, Landmark, LayoutGrid, Package, ReceiptText, Ruler, Tag, Truck, UserSquare, Users } from 'lucide-react';
+import { BookOpen, BookOpenText, ClipboardCheck, FileBarChart, FolderGit2, History, Landmark, LayoutGrid, NotebookText, Package, ReceiptText, Ruler, Tag, Truck, UserSquare, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -17,8 +17,11 @@ import { dashboard } from '@/routes';
 import { index as categoriesIndex } from '@/routes/categories';
 import { index as chartOfAccountsIndex } from '@/routes/chart-of-accounts';
 import { index as customersIndex } from '@/routes/customers';
+import { index as generalLedgerIndex } from '@/routes/general-ledger';
+import { index as journalEntriesIndex } from '@/routes/journal-entries';
 import { index as productsIndex } from '@/routes/products';
 import { index as purchaseOrdersIndex } from '@/routes/purchase-orders';
+import { incomeStatement as incomeStatementIndex } from '@/routes/reports';
 import { index as salesOrdersIndex } from '@/routes/sales-orders';
 import { index as stockMovementsIndex } from '@/routes/stock-movements';
 import { index as stockOpnameIndex } from '@/routes/stock-opname';
@@ -91,6 +94,24 @@ const mainNavItems: NavItem[] = [
         title: 'Chart of Accounts',
         href: chartOfAccountsIndex.url(),
         icon: Landmark,
+        roles: ['admin', 'staff_finance'],
+    },
+    {
+        title: 'Jurnal Umum',
+        href: journalEntriesIndex.url(),
+        icon: NotebookText,
+        roles: ['admin', 'staff_finance'],
+    },
+    {
+        title: 'Buku Besar',
+        href: generalLedgerIndex.url(),
+        icon: BookOpenText,
+        roles: ['admin', 'staff_finance'],
+    },
+    {
+        title: 'Laporan Keuangan',
+        href: incomeStatementIndex.url(),
+        icon: FileBarChart,
         roles: ['admin', 'staff_finance'],
     },
 ];

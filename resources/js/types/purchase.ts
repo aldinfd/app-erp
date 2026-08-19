@@ -56,7 +56,7 @@ export type PurchaseOrderDetail = PurchaseOrderListItem & {
     notes: string | null;
     vendor: { id: number; name: string; email: string | null; phone: string | null; address: string | null } | null;
     items: PurchaseOrderItemRow[];
-    vendorInvoice: {
+    invoice: {
         id: number;
         vendor_invoice_number: string;
         invoice_date: string;

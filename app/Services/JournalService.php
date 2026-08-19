@@ -8,6 +8,7 @@ use App\Models\JournalLine;
 use App\Models\JournalMapping;
 use App\Models\Payment;
 use App\Models\PurchaseOrder;
+use App\Models\SalesOrder;
 use App\Models\VendorPayment;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -78,7 +79,9 @@ class JournalService
 
     /**
      * Auto-jurnal pembayaran penjualan: Kas/Bank (D) = grand_total,
-     * Pendapatan Penjualan (C) = subtotal, Utang PPN (C) = tax bila > 0.
+     * Pendapatan Penjualan (C) = subtotal, Utang PPN (C) = tax bila > 0,
+     * plus HPP (disetujui 2026-08-18): HPP (D) / Persediaan (C) = Σ qty ×
+     * cost_price produk saat pembayaran (items hanya snapshot harga jual).
      * Akun dari journal_mappings (transaction_type = sales_payment) — tidak
      * ada id akun yang di-hard-code.
      *
@@ -87,6 +90,7 @@ class JournalService
     public function postSalesPayment(Payment $payment): JournalEntry
     {
         $order = $payment->invoice->salesOrder;
+        $order->load('items.product:id,cost_price');
 
         $mappings = $this->requireMappings(
             JournalMapping::TRANSACTION_TYPE_SALES_PAYMENT,
@@ -108,6 +112,21 @@ class JournalService
             $lines[] = ['account_id' => $mappings[JournalMapping::KEY_UTANG_PPN]->account_id, 'debit' => 0, 'credit' => (float) $order->tax];
         }
 
+        $cogs = $this->salesCostOfGoodsSold($order);
+
+        if ($cogs > 0) {
+            foreach ([JournalMapping::KEY_HPP, JournalMapping::KEY_PERSEDIAAN] as $key) {
+                if (! isset($mappings[$key])) {
+                    throw new RuntimeException(
+                        "Mapping jurnal sales_payment/{$key} belum di-seed (JournalMappingSeeder).",
+                    );
+                }
+            }
+
+            $lines[] = ['account_id' => $mappings[JournalMapping::KEY_HPP]->account_id, 'debit' => $cogs, 'credit' => 0];
+            $lines[] = ['account_id' => $mappings[JournalMapping::KEY_PERSEDIAAN]->account_id, 'debit' => 0, 'credit' => $cogs];
+        }
+
         return $this->post(
             source: JournalEntry::SOURCE_SALES_PAYMENT,
             entryDate: $payment->paid_at?->toDateString() ?? today()->toDateString(),
@@ -117,6 +136,17 @@ class JournalService
             referenceId: $payment->id,
             postedBy: null,
         );
+    }
+
+    /**
+     * HPP penjualan = Σ qty item × cost_price produk saat ini (approx —
+     * items order hanya menyimpan snapshot harga jual).
+     */
+    private function salesCostOfGoodsSold(SalesOrder $order): float
+    {
+        return round($order->items->sum(
+            fn ($item) => (float) $item->qty * (float) $item->product->cost_price,
+        ), 2);
     }
 
     /**

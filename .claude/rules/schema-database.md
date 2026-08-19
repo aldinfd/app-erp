@@ -384,13 +384,15 @@ Mapping akun auto-jurnal — dari catatan risiko plan ("jangan hard-code id akun
 - UNIQUE: `(transaction_type, account_key)`
 - FK: `account_id` → `RESTRICT`
 
-Contoh isi (seeder Phase 6):
+Contoh isi (seeder Phase 6; baris COGS disetujui user 2026-08-18):
 
 | transaction_type | account_key | Contoh akun |
 |---|---|---|
 | sales_payment | kas_bank | 1-1000 Kas & Bank (D, grand_total) |
 | sales_payment | pendapatan_penjualan | 4-1000 Pendapatan Penjualan (C, subtotal) |
 | sales_payment | utang_ppn | 2-2000 Utang PPN (C, tax) |
+| sales_payment | hpp | 5-1000 Harga Pokok Penjualan (D, Σ qty × cost_price) |
+| sales_payment | persediaan | 1-3000 Persediaan (C, Σ qty × cost_price) |
 | purchase_received | persediaan | 1-3000 Persediaan (D) |
 | purchase_received | hutang_vendor | 2-1000 Hutang Vendor (C) |
 | purchase_payment | hutang_vendor | 2-1000 Hutang Vendor (D) |

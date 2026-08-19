@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Finance\FinancialReportController;
+use App\Http\Controllers\Finance\GeneralLedgerController;
+use App\Http\Controllers\Finance\JournalEntryController;
 use App\Http\Controllers\Inventory\StockMovementController;
 use App\Http\Controllers\Inventory\StockOpnameController;
 use App\Http\Controllers\Master\CategoryController;
@@ -112,6 +115,25 @@ Route::middleware(['auth', 'verified', 'role:admin|staff_gudang|staff_finance'])
 Route::middleware(['auth', 'verified', 'role:admin|staff_finance'])->group(function () {
     Route::post('purchase-orders/{purchase_order}/vendor-invoice', [VendorInvoiceController::class, 'store'])->name('vendor-invoices.store');
     Route::post('vendor-invoices/{vendor_invoice}/payments', [VendorInvoiceController::class, 'storePayment'])->name('vendor-invoices.payments.store');
+});
+
+/*
+|----------------------------------------------------------------------
+| Finance: jurnal umum (+ jurnal manual), buku besar, laporan keuangan —
+| admin & staff_finance (plan Phase 6). Didaftarkan create sebelum
+| {journal_entry} agar tidak tertangkap param show.
+|----------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'role:admin|staff_finance'])->group(function () {
+    Route::get('journal-entries', [JournalEntryController::class, 'index'])->name('journal-entries.index');
+    Route::get('journal-entries/create', [JournalEntryController::class, 'create'])->name('journal-entries.create');
+    Route::post('journal-entries', [JournalEntryController::class, 'store'])->name('journal-entries.store');
+    Route::get('journal-entries/{journal_entry}', [JournalEntryController::class, 'show'])->name('journal-entries.show');
+
+    Route::get('general-ledger', [GeneralLedgerController::class, 'index'])->name('general-ledger.index');
+
+    Route::get('reports/income-statement', [FinancialReportController::class, 'incomeStatement'])->name('reports.income-statement');
+    Route::get('reports/balance-sheet', [FinancialReportController::class, 'balanceSheet'])->name('reports.balance-sheet');
 });
 
 require __DIR__.'/settings.php';

@@ -191,7 +191,7 @@ class PurchaseService
                 ]);
             }
 
-            if ($locked->vendorInvoice()->exists()) {
+            if ($locked->invoice()->exists()) {
                 throw ValidationException::withMessages([
                     'vendor_invoice_number' => "PO {$locked->po_number} sudah punya invoice vendor.",
                 ]);

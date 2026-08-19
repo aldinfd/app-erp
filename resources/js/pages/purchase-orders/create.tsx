@@ -149,7 +149,7 @@ export default function PurchaseOrdersCreate({ vendors, products }: Props) {
                                                 <Input
                                                     name={`items[${index}][qty]`}
                                                     type="number"
-                                                    min="0.01"
+                                                    min={product?.unit?.allows_fraction ? '0.01' : '1'}
                                                     step={product?.unit?.allows_fraction ? '0.01' : '1'}
                                                     placeholder={product?.unit?.allows_fraction ? 'mis. 2.5' : 'mis. 10'}
                                                     required

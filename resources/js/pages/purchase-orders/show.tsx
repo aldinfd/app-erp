@@ -29,7 +29,7 @@ type Props = {
 const selectClass = 'border-input bg-background h-9 rounded-md border px-3 text-sm';
 
 export default function PurchaseOrderShow({ order, canOrder, canReceive, canCancel, canRecordInvoice, canPay }: Props) {
-    const invoice = order.vendorInvoice;
+    const invoice = order.invoice;
 
     function handleStatusAction(action: 'ordered' | 'receive' | 'cancel') {
         const messages = {

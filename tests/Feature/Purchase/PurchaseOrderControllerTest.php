@@ -10,6 +10,7 @@ use App\Models\StockMovement;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorInvoice;
+use App\Models\VendorPayment;
 use Database\Seeders\ChartOfAccountSeeder;
 use Database\Seeders\JournalMappingSeeder;
 use Database\Seeders\RoleSeeder;
@@ -206,6 +207,32 @@ class PurchaseOrderControllerTest extends TestCase
                 fn (AssertableInertia $page) => $page
                     ->where('canRecordInvoice', true)
                     ->where('canOrder', false),
+            );
+    }
+
+    /**
+     * Regression: relasi invoice vendor harus terkirim sebagai key "invoice".
+     * Dulu relasi bernama "vendorInvoice" yang di-serialize snake_case
+     * ("vendor_invoice") sehingga FE (membaca order.vendorInvoice) tidak
+     * pernah menerima datanya — section invoice & pembayaran tak pernah
+     * tampil di halaman detail PO.
+     */
+    public function test_show_includes_vendor_invoice_and_payments_for_finance(): void
+    {
+        $this->actingAsRole('staff_finance');
+
+        [$order] = $this->makeOrder(PurchaseOrder::STATUS_RECEIVED);
+        $invoice = VendorInvoice::factory()->for($order)->create(['amount' => 50_000]);
+        VendorPayment::factory()->for($invoice)->create(['amount' => 20_000]);
+
+        $this->get(route('purchase-orders.show', $order))
+            ->assertOk()
+            ->assertInertia(
+                fn (AssertableInertia $page) => $page
+                    ->where('order.invoice.vendor_invoice_number', $invoice->vendor_invoice_number)
+                    ->where('order.invoice.status', VendorInvoice::STATUS_UNPAID)
+                    ->has('order.invoice.payments', 1)
+                    ->where('canPay', true),
             );
     }
 

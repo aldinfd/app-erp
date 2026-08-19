@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Services\CheckoutService;
 use App\Services\MidtransService;
+use App\Services\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -41,8 +44,11 @@ class CheckoutController extends Controller
      * (satu transaction) → redirect ke Midtrans Snap. Kegagalan pembuatan Snap
      * TIDAK membatalkan order (sudah tersimpan) — customer diarahkan ke
      * halaman finish dengan pesan menyimpan nomor order.
+     *
+     * Return type union: Inertia::location() mengembalikan Response 409
+     * (request X-Inertia) atau RedirectResponse (request biasa non-JS).
      */
-    public function store(Request $request, CheckoutService $checkout, MidtransService $midtrans): RedirectResponse
+    public function store(Request $request, CheckoutService $checkout, MidtransService $midtrans): HttpResponse|RedirectResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
@@ -69,7 +75,9 @@ class CheckoutController extends Controller
                 ->with('error', 'Pesanan Anda tersimpan, namun pembayaran gagal dibuat. Simpan nomor order Anda dan hubungi kami.');
         }
 
-        return redirect()->away($snapUrl);
+        // Redirect eksternal WAJIB Inertia::location() — 302 biasa tidak bisa
+        // diikuti request Inertia (XHR) karena lintas domain → network error.
+        return Inertia::location($snapUrl);
     }
 
     /**
@@ -77,7 +85,7 @@ class CheckoutController extends Controller
      * saat pembayaran gagal dibuat. Lookup by order_number; tidak ketemu →
      * state "order tidak ditemukan", bukan 404.
      */
-    public function finish(Request $request): Response
+    public function finish(Request $request, PaymentService $payments): Response
     {
         $orderId = (string) $request->query('order_id', '');
 
@@ -85,6 +93,17 @@ class CheckoutController extends Controller
             ->where('order_number', $orderId)
             ->with('invoice.payments')
             ->first();
+
+        // Webhook Midtrans bisa belum sampai (dev lokal tanpa URL publik,
+        // atau notifikasi terlambat) — tarik status terbaru langsung dari
+        // Midtrans agar struk tidak menampilkan "pending" padahal sudah dibayar.
+        $payment = $order?->invoice?->payments->first();
+
+        if ($payment !== null && $payment->status === Payment::STATUS_PENDING) {
+            $payments->syncGatewayStatus($payment);
+
+            $order->refresh(); // atribut + relasi ter-load diambil ulang setelah sync
+        }
 
         return Inertia::render('storefront/payment-finish', [
             'order' => $order === null ? null : [

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Sales;
 
+use App\Models\ChartOfAccount;
 use App\Models\JournalEntry;
 use App\Models\JournalLine;
 use App\Models\JournalMapping;
@@ -12,6 +13,8 @@ use App\Models\StockMovement;
 use App\Models\User;
 use App\Notifications\SystemNotification;
 use App\Services\CheckoutService;
+use App\Services\MidtransService;
+use App\Services\PaymentService;
 use App\Services\StockService;
 use Database\Seeders\ChartOfAccountSeeder;
 use Database\Seeders\JournalMappingSeeder;
@@ -53,7 +56,7 @@ class MidtransWebhookTest extends TestCase
      */
     private function makeOrder(float $qty = 2): array
     {
-        $product = Product::factory()->create(['stock_qty' => 100, 'selling_price' => 25000]);
+        $product = Product::factory()->create(['stock_qty' => 100, 'selling_price' => 25000, 'cost_price' => 10000]);
 
         $order = app(CheckoutService::class)->createOrder(
             ['name' => 'Budi Santoso', 'email' => 'budi@example.com', 'phone' => '08123456789', 'address' => 'Jl. Mawar No. 1'],
@@ -87,6 +90,50 @@ class MidtransWebhookTest extends TestCase
         return $payload;
     }
 
+    public function test_sync_gateway_status_settles_payment_and_is_idempotent(): void
+    {
+        [$order, $product] = $this->makeOrder(qty: 2);
+
+        // Payload dari Status API — tidak punya signature (tidak diperlukan
+        // untuk pull, itu hanya untuk push notification).
+        $this->mock(MidtransService::class)
+            ->shouldReceive('getTransactionStatus')
+            ->andReturn([
+                'order_id' => $order->order_number,
+                'transaction_status' => Payment::STATUS_SETTLEMENT,
+                'gross_amount' => '50000.00',
+            ]);
+
+        app(PaymentService::class)->syncGatewayStatus(Payment::query()->sole());
+
+        $this->assertSame(Payment::STATUS_SETTLEMENT, Payment::query()->sole()->status);
+        $this->assertSame(SalesOrder::STATUS_PAID, $order->fresh()->status);
+        $this->assertSame(98.0, (float) $product->fresh()->stock_qty);
+        $this->assertSame(1, JournalEntry::count());
+
+        // Customer refresh struk → sync ulang tidak boleh dobel cascade.
+        app(PaymentService::class)->syncGatewayStatus(Payment::query()->sole());
+
+        $this->assertSame(1, JournalEntry::count());
+        $this->assertSame(1, StockMovement::where('type', StockMovement::TYPE_OUT)->count());
+        $this->assertSame(98.0, (float) $product->fresh()->stock_qty);
+    }
+
+    public function test_sync_gateway_status_ignores_unreachable_gateway(): void
+    {
+        [$order] = $this->makeOrder(qty: 1);
+
+        $this->mock(MidtransService::class)
+            ->shouldReceive('getTransactionStatus')
+            ->andReturn(null);
+
+        app(PaymentService::class)->syncGatewayStatus(Payment::query()->sole());
+
+        $this->assertSame(Payment::STATUS_PENDING, Payment::query()->sole()->status);
+        $this->assertSame(SalesOrder::STATUS_CONFIRMED, $order->fresh()->status);
+        $this->assertSame(0, JournalEntry::count());
+    }
+
     public function test_settlement_notification_marks_everything_paid(): void
     {
         [$order, $product] = $this->makeOrder(qty: 2);
@@ -114,16 +161,22 @@ class MidtransWebhookTest extends TestCase
         $this->assertSame($order->id, $movement->reference_id);
         $this->assertStringContainsString($order->order_number, (string) $movement->note);
 
-        // Auto-jurnal balance: D kas_bank = grand_total, C pendapatan = subtotal.
+        // Auto-jurnal balance: D kas = grand_total, C pendapatan = subtotal,
+        // plus COGS — D HPP / C persediaan = Σ qty × cost_price (2 × 10000).
         $entry = JournalEntry::query()->sole();
         $this->assertSame(JournalEntry::SOURCE_SALES_PAYMENT, $entry->source);
         $this->assertSame('payment', $entry->reference_type);
         $this->assertSame($payment->id, $entry->reference_id);
 
+        $accountId = fn (string $code): int => ChartOfAccount::where('code', $code)->value('id');
         $lines = JournalLine::query()->where('journal_entry_id', $entry->id)->get();
-        $this->assertSame(2, $lines->count());
-        $this->assertSame(50000.0, round((float) $lines->sum('debit'), 2));
-        $this->assertSame(50000.0, round((float) $lines->sum('credit'), 2));
+        $this->assertSame(4, $lines->count());
+        $this->assertSame(50000.0, (float) $lines->firstWhere('account_id', $accountId('1-1000'))->debit);
+        $this->assertSame(50000.0, (float) $lines->firstWhere('account_id', $accountId('4-1000'))->credit);
+        $this->assertSame(20000.0, (float) $lines->firstWhere('account_id', $accountId('5-1000'))->debit);
+        $this->assertSame(20000.0, (float) $lines->firstWhere('account_id', $accountId('1-3000'))->credit);
+        $this->assertSame(70000.0, round((float) $lines->sum('debit'), 2));
+        $this->assertSame(70000.0, round((float) $lines->sum('credit'), 2));
     }
 
     public function test_webhook_is_idempotent_for_duplicate_notifications(): void
