@@ -45,6 +45,14 @@ class SalesOrder extends Model
     /** @var list<string> */
     public const STATUSES = [self::STATUS_DRAFT, self::STATUS_CONFIRMED, self::STATUS_PAID, self::STATUS_CANCELLED];
 
+    /** Label status untuk PDF/Excel laporan (plan Phase 8) — FE punya map sendiri di pages/sales-orders/status.ts. */
+    public const STATUS_LABELS = [
+        self::STATUS_DRAFT => 'Draft',
+        self::STATUS_CONFIRMED => 'Menunggu Pembayaran',
+        self::STATUS_PAID => 'Dibayar',
+        self::STATUS_CANCELLED => 'Dibatalkan',
+    ];
+
     protected function casts(): array
     {
         return [

@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, BookOpenText, ClipboardCheck, FileBarChart, FolderGit2, History, Landmark, LayoutGrid, NotebookText, Package, ReceiptText, Ruler, Tag, Truck, UserSquare, Users } from 'lucide-react';
+import { BookOpen, BookOpenText, Boxes, ClipboardCheck, FileBarChart, FolderGit2, History, Landmark, LayoutGrid, NotebookText, Package, ReceiptText, Ruler, Tag, TrendingUp, Truck, UserSquare, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -22,6 +22,8 @@ import { index as journalEntriesIndex } from '@/routes/journal-entries';
 import { index as productsIndex } from '@/routes/products';
 import { index as purchaseOrdersIndex } from '@/routes/purchase-orders';
 import { incomeStatement as incomeStatementIndex } from '@/routes/reports';
+import { sales as salesReportIndex } from '@/routes/reports';
+import { stockCard as stockCardIndex } from '@/routes/reports';
 import { index as salesOrdersIndex } from '@/routes/sales-orders';
 import { index as stockMovementsIndex } from '@/routes/stock-movements';
 import { index as stockOpnameIndex } from '@/routes/stock-opname';
@@ -112,6 +114,18 @@ const mainNavItems: NavItem[] = [
         title: 'Laporan Keuangan',
         href: incomeStatementIndex.url(),
         icon: FileBarChart,
+        roles: ['admin', 'staff_finance'],
+    },
+    {
+        title: 'Laporan Penjualan',
+        href: salesReportIndex.url(),
+        icon: TrendingUp,
+        roles: ['admin', 'staff_finance'],
+    },
+    {
+        title: 'Kartu Stok',
+        href: stockCardIndex.url(),
+        icon: Boxes,
         roles: ['admin', 'staff_finance'],
     },
 ];

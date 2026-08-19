@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { balanceSheet } from '@/routes/reports';
+import { excel as incomeStatementExcel } from '@/routes/reports/income-statement';
+import { pdf as incomeStatementPdf } from '@/routes/reports/income-statement';
 import { incomeStatement } from '@/routes/reports';
 import type { ReportRow } from '@/types';
 
@@ -68,11 +70,32 @@ export default function IncomeStatement({ report }: Props) {
         <>
             <Head title="Laba Rugi" />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                     <h1 className="text-lg font-semibold">Laba Rugi</h1>
-                    <Button asChild variant="outline">
-                        <Link href={balanceSheet.url()}>Lihat Neraca</Link>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        {/* <a> polos agar browser mengunduh file, bukan visit Inertia. */}
+                        <Button asChild variant="outline">
+                            <a
+                                href={incomeStatementPdf.url({
+                                    query: { from: report.from, to: report.to },
+                                })}
+                            >
+                                Export PDF
+                            </a>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <a
+                                href={incomeStatementExcel.url({
+                                    query: { from: report.from, to: report.to },
+                                })}
+                            >
+                                Export Excel
+                            </a>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <Link href={balanceSheet.url()}>Lihat Neraca</Link>
+                        </Button>
+                    </div>
                 </div>
 
                 <form onSubmit={applyFilter} className="flex flex-wrap items-center gap-2">

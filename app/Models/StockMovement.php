@@ -41,6 +41,13 @@ class StockMovement extends Model
     /** @var list<string> */
     public const TYPES = [self::TYPE_IN, self::TYPE_OUT, self::TYPE_ADJUST];
 
+    /** Label tipe untuk PDF/Excel kartu stok (plan Phase 8). */
+    public const TYPE_LABELS = [
+        self::TYPE_IN => 'Masuk',
+        self::TYPE_OUT => 'Keluar',
+        self::TYPE_ADJUST => 'Penyesuaian',
+    ];
+
     protected function casts(): array
     {
         return [

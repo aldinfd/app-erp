@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { balanceSheet, incomeStatement } from '@/routes/reports';
+import { excel as balanceSheetExcel } from '@/routes/reports/balance-sheet';
+import { pdf as balanceSheetPdf } from '@/routes/reports/balance-sheet';
 import type { ReportRow } from '@/types';
 
 type Props = {
@@ -67,11 +69,20 @@ export default function BalanceSheet({ report }: Props) {
         <>
             <Head title="Neraca" />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                     <h1 className="text-lg font-semibold">Neraca</h1>
-                    <Button asChild variant="outline">
-                        <Link href={incomeStatement.url()}>Lihat Laba Rugi</Link>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        {/* <a> polos agar browser mengunduh file, bukan visit Inertia. */}
+                        <Button asChild variant="outline">
+                            <a href={balanceSheetPdf.url({ query: { as_of: report.as_of } })}>Export PDF</a>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <a href={balanceSheetExcel.url({ query: { as_of: report.as_of } })}>Export Excel</a>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <Link href={incomeStatement.url()}>Lihat Laba Rugi</Link>
+                        </Button>
+                    </div>
                 </div>
 
                 <form onSubmit={applyFilter} className="flex flex-wrap items-center gap-2">

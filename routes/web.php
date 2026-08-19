@@ -14,6 +14,8 @@ use App\Http\Controllers\Master\UnitController;
 use App\Http\Controllers\Master\VendorController;
 use App\Http\Controllers\Purchase\PurchaseOrderController;
 use App\Http\Controllers\Purchase\VendorInvoiceController;
+use App\Http\Controllers\Reports\SalesReportController;
+use App\Http\Controllers\Reports\StockCardController;
 use App\Http\Controllers\Sales\SalesOrderController;
 use App\Http\Controllers\Storefront\CatalogController;
 use App\Http\Controllers\Storefront\CheckoutController;
@@ -135,6 +137,27 @@ Route::middleware(['auth', 'verified', 'role:admin|staff_finance'])->group(funct
 
     Route::get('reports/income-statement', [FinancialReportController::class, 'incomeStatement'])->name('reports.income-statement');
     Route::get('reports/balance-sheet', [FinancialReportController::class, 'balanceSheet'])->name('reports.balance-sheet');
+});
+
+/*
+|----------------------------------------------------------------------
+| Reporting & export (plan Phase 8) — admin & staff_finance: laporan
+| penjualan, kartu stok, plus export PDF/Excel semua laporan utama.
+|----------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'role:admin|staff_finance'])->group(function () {
+    Route::get('reports/sales', [SalesReportController::class, 'index'])->name('reports.sales');
+    Route::get('reports/sales/pdf', [SalesReportController::class, 'pdf'])->name('reports.sales.pdf');
+    Route::get('reports/sales/excel', [SalesReportController::class, 'excel'])->name('reports.sales.excel');
+
+    Route::get('reports/stock-card', [StockCardController::class, 'index'])->name('reports.stock-card');
+    Route::get('reports/stock-card/pdf', [StockCardController::class, 'pdf'])->name('reports.stock-card.pdf');
+    Route::get('reports/stock-card/excel', [StockCardController::class, 'excel'])->name('reports.stock-card.excel');
+
+    Route::get('reports/income-statement/pdf', [FinancialReportController::class, 'incomeStatementPdf'])->name('reports.income-statement.pdf');
+    Route::get('reports/income-statement/excel', [FinancialReportController::class, 'incomeStatementExcel'])->name('reports.income-statement.excel');
+    Route::get('reports/balance-sheet/pdf', [FinancialReportController::class, 'balanceSheetPdf'])->name('reports.balance-sheet.pdf');
+    Route::get('reports/balance-sheet/excel', [FinancialReportController::class, 'balanceSheetExcel'])->name('reports.balance-sheet.excel');
 });
 
 require __DIR__.'/settings.php';

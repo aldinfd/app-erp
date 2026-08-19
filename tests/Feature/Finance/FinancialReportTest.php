@@ -141,11 +141,35 @@ class FinancialReportTest extends TestCase
             );
     }
 
+    public function test_reports_export_to_pdf_and_excel(): void
+    {
+        $this->actingAsRole('staff_finance');
+
+        $this->postSale(today()->toDateString());
+
+        $this->get(route('reports.income-statement.pdf'))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
+        $this->get(route('reports.income-statement.excel'))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $this->get(route('reports.balance-sheet.pdf'))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
+        $this->get(route('reports.balance-sheet.excel'))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    }
+
     public function test_staff_gudang_is_forbidden(): void
     {
         $this->actingAsRole('staff_gudang');
 
         $this->get(route('reports.income-statement'))->assertForbidden();
         $this->get(route('reports.balance-sheet'))->assertForbidden();
+        $this->get(route('reports.income-statement.pdf'))->assertForbidden();
+        $this->get(route('reports.income-statement.excel'))->assertForbidden();
+        $this->get(route('reports.balance-sheet.pdf'))->assertForbidden();
+        $this->get(route('reports.balance-sheet.excel'))->assertForbidden();
     }
 }
