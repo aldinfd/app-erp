@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Finance\FinancialReportController;
 use App\Http\Controllers\Finance\GeneralLedgerController;
 use App\Http\Controllers\Finance\JournalEntryController;
@@ -44,7 +45,7 @@ Route::post('webhooks/midtrans', MidtransController::class)->middleware('throttl
 |----------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified', 'role:admin|staff_gudang|staff_finance'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
 });
 
 /*
