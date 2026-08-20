@@ -1,8 +1,9 @@
 import { Head } from '@inertiajs/react';
+import { Minus, Package, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import InputError from '@/components/input-error';
 import { useCart } from '@/components/storefront/cart-context';
 import { cn, formatCurrency, formatQty } from '@/lib/utils';
 import type { CatalogProduct, StoredCartItem } from '@/types/sales';
@@ -16,19 +17,50 @@ export default function Home({ products }: Props) {
         <>
             <Head title="Katalog" />
 
-            <section className="py-8">
-                <h1 className="text-2xl font-bold tracking-tight">Katalog Produk</h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                    Pilih produk, masukkan ke keranjang, lalu checkout tanpa perlu akun.
-                </p>
+            {/* Band etalase — pembuka khas toko, satu keluarga dengan halaman
+             * login back-office (dash manila + judul serif). */}
+            <section className="border-b border-ink/10 py-10 dark:border-border sm:py-12">
+                <span
+                    aria-hidden
+                    className="mb-5 block h-0.75 w-10 rounded-full bg-manila"
+                />
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <h1 className="font-serif text-4xl tracking-tight text-balance sm:text-5xl">
+                            Katalog Produk
+                        </h1>
+                        <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+                            Pilih produk, masukkan ke keranjang, lalu checkout
+                            tanpa perlu akun.
+                        </p>
+                    </div>
+                    <p className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
+                        {products.length} produk tersedia
+                    </p>
+                </div>
+            </section>
 
+            <section className="py-8 sm:py-10">
                 {products.length === 0 ? (
-                    <div className="mt-16 flex flex-col items-center gap-3 py-16 text-center">
-                        <span className="text-4xl">🛍️</span>
-                        <p className="text-muted-foreground">Belum ada produk yang tersedia.</p>
+                    <div className="flex flex-col items-center gap-4 py-20 text-center">
+                        <span className="flex size-16 items-center justify-center rounded-full bg-paper-dim/70 dark:bg-muted">
+                            <Package
+                                aria-hidden
+                                className="size-7 text-muted-foreground/60"
+                            />
+                        </span>
+                        <div>
+                            <p className="font-serif text-xl">
+                                Etalase masih kosong
+                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Produk akan segera tersedia — kembali lagi
+                                nanti.
+                            </p>
+                        </div>
                     </div>
                 ) : (
-                    <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
                         {products.map((product) => (
                             <CatalogCard key={product.id} product={product} />
                         ))}
@@ -90,8 +122,8 @@ function CatalogCard({ product }: { product: CatalogProduct }) {
     };
 
     return (
-        <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
-            <div className="flex aspect-square items-center justify-center bg-muted">
+        <div className="flex flex-col overflow-hidden rounded-xl border border-ink/10 bg-card transition-shadow hover:shadow-[0_10px_28px_-16px_rgba(0,0,0,0.3)] dark:border-border">
+            <div className="relative flex aspect-square items-center justify-center bg-paper-dim/70 dark:bg-muted">
                 {product.image_url ? (
                     <img
                         src={product.image_url}
@@ -100,58 +132,105 @@ function CatalogCard({ product }: { product: CatalogProduct }) {
                         loading="lazy"
                     />
                 ) : (
-                    <span className="text-4xl" aria-hidden>
-                        📦
+                    <Package
+                        aria-hidden
+                        className="size-10 text-muted-foreground/40"
+                    />
+                )}
+                {!inStock && (
+                    <span className="absolute inset-x-0 bottom-0 bg-ink/85 py-1 text-center font-mono text-[10px] tracking-[0.18em] text-white uppercase">
+                        Stok habis
                     </span>
                 )}
             </div>
 
-            <div className="flex flex-1 flex-col gap-2 p-3">
-                <div className="flex items-start justify-between gap-2">
-                    <h2 className="line-clamp-2 text-sm font-semibold leading-snug">{product.name}</h2>
-                    {inStock ? (
-                        <Badge variant="secondary" className="shrink-0">
-                            Tersedia
-                        </Badge>
-                    ) : (
-                        <Badge variant="destructive" className="shrink-0">
-                            Habis
-                        </Badge>
-                    )}
-                </div>
+            <div className="flex flex-1 flex-col gap-2.5 p-4">
+                <h2 className="line-clamp-2 min-h-10 text-sm leading-snug font-semibold">
+                    {product.name}
+                </h2>
 
-                <p className="text-xs text-muted-foreground">
-                    {formatCurrency(product.selling_price)}
-                    {unit ? ` / ${unit.abbreviation}` : ''} · stok {formatQty(product.stock_qty, allowsFraction)}{' '}
-                    {unit?.abbreviation ?? ''}
+                {/* Harga gaya "daftar harga" — angka mono, satuan diikuti titik-titik. */}
+                <p className="flex items-baseline gap-1 font-mono">
+                    <span className="text-[15px] font-medium">
+                        {formatCurrency(product.selling_price)}
+                    </span>
+                    {unit && (
+                        <span className="text-xs text-muted-foreground">
+                            /{unit.abbreviation}
+                        </span>
+                    )}
+                </p>
+                <p className="flex items-baseline gap-1 text-xs text-muted-foreground">
+                    <span>stok {formatQty(product.stock_qty, allowsFraction)}</span>
+                    <span
+                        aria-hidden
+                        className="mx-1 flex-1 -translate-y-1 border-b border-dotted border-muted-foreground/40"
+                    />
+                    <span className="font-mono text-[10px] tracking-wide text-muted-foreground/70 uppercase">
+                        {product.sku}
+                    </span>
                 </p>
 
-                <div className="mt-auto flex items-center gap-2">
-                    <Input
-                        type="number"
-                        value={qty}
-                        min={step}
-                        step={step}
-                        disabled={!inStock}
-                        onChange={(event) => setQty(Number(event.target.value))}
-                        className="h-9 w-20"
-                        aria-label={`Jumlah ${product.name}`}
-                    />
-                    <Button
-                        type="button"
-                        size="sm"
-                        disabled={!canAdd}
-                        onClick={handleAdd}
-                        className={cn('flex-1', added && 'bg-emerald-600 text-white hover:bg-emerald-600')}
-                    >
-                        {added ? 'Ditambahkan ✓' : 'Tambah ke Keranjang'}
-                    </Button>
-                </div>
+                {inStock ? (
+                    <div className="mt-auto flex items-center gap-2 pt-2.5">
+                        <div className="flex h-9 items-center rounded-lg border border-ink/15 dark:border-border">
+                            <button
+                                type="button"
+                                aria-label={`Kurangi jumlah ${product.name}`}
+                                onClick={() => setQty((current) => Math.max(step, Number((current - step).toFixed(2))))}
+                                className="flex h-full w-8 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+                            >
+                                <Minus className="size-3.5" />
+                            </button>
+                            <Input
+                                type="number"
+                                value={qty}
+                                min={step}
+                                step={step}
+                                onChange={(event) => setQty(Number(event.target.value))}
+                                className="h-9 w-13 rounded-none border-x border-ink/15 text-center focus-visible:ring-0 dark:border-border"
+                                aria-label={`Jumlah ${product.name}`}
+                            />
+                            <button
+                                type="button"
+                                aria-label={`Tambah jumlah ${product.name}`}
+                                onClick={() => setQty((current) => Number((current + step).toFixed(2)))}
+                                className="flex h-full w-8 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+                            >
+                                <Plus className="size-3.5" />
+                            </button>
+                        </div>
+                        <Button
+                            type="button"
+                            size="sm"
+                            disabled={!canAdd}
+                            onClick={handleAdd}
+                            className={cn(
+                                'h-9 flex-1 rounded-lg bg-ink text-white transition-all hover:bg-ledger active:translate-y-px',
+                                added && 'bg-ledger hover:bg-ledger',
+                            )}
+                        >
+                            {added ? 'Ditambahkan ✓' : 'Tambah'}
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="mt-auto pt-1">
+                        <Button
+                            type="button"
+                            size="sm"
+                            disabled
+                            className="h-9 w-full rounded-lg"
+                        >
+                            Tidak tersedia
+                        </Button>
+                    </div>
+                )}
 
                 {inStock && qtyExceedsStock && (
-                    <p className="text-xs text-destructive">
-                        Jumlah melebihi stok ({formatQty(product.stock_qty, allowsFraction)}).
-                    </p>
+                    <InputError
+                        className="text-xs"
+                        message={`Jumlah melebihi stok (${formatQty(product.stock_qty, allowsFraction)}).`}
+                    />
                 )}
             </div>
         </div>
