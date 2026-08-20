@@ -7,7 +7,7 @@
 > Update 2026-08-16: desain tabel database udah jadi & sebagian disetujui — detail teknisnya ada di [schema-database.md](schema-database.md).
 
 ---
-
+x
 ## 📖 Cara Baca Plan Ini
 
 - Kerjakan dari **atas ke bawah**, jangan loncat-loncat.

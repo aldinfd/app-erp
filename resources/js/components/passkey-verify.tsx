@@ -45,7 +45,7 @@ export default function PasskeyVerify({
                 <Button
                     type="button"
                     variant="outline"
-                    className="w-full"
+                    className="h-11 w-full"
                     onClick={verify}
                     disabled={isLoading}
                 >

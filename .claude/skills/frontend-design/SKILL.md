@@ -53,3 +53,49 @@ Use active voice as default. A control should say exactly what happens when it's
 Treat failure and emptiness as moments for direction, not mood. Explain what went wrong and how to fix it, in the interface's voice rather than a person's. Errors don't apologize, and they are never vague about what happened. An empty screen is an invitation to act.
 
 Keep the register conversational and tuned: plain verbs, sentence case, no filler, with tone matched to the brand and the audience. Let each element do exactly one job. A label labels, an example demonstrates, and nothing quietly does double duty.
+
+## System status visibility
+
+Don't leave users staring at a blank screen, guessing whether the app is working or frozen. Every action—a click, a submission, an upload—must be acknowledged within milliseconds with a sign that the system is listening: a spinner, a progress bar, or a subtle state change. Silence comes at a cost; uncertain users will double-click, and that’s how bugs begin.
+
+## Real-world language, not system jargon
+
+Write labels, messages, and icons as if explaining them to a friend, not a compiler. "Save failed; connection lost" is far more human than "Error 500." Stick to metaphors users already know—shopping carts, folders, back buttons—and don't invent new terms just because they sound unique.
+
+## Always provide an escape route
+
+Any significant action needs a way to cancel it. Undo, cancel, or return to the previous step—these aren't luxury features; they are safety nets that give users the confidence to experiment. Users who feel trapped will close the tab rather than stick around to find a solution.
+
+## Consistency that frees, not constrains
+
+A "Save" button should behave the same way throughout the app, with predictable placement and color. Consistency isn't about being boring; it frees users from having to relearn the interface every time they open a new screen. Follow platform conventions before creating your own.
+
+## Prevent errors before they happen
+
+Validate input in real-time, disable buttons that aren't ready to be pressed, and ask for confirmation before irreversible actions. The most elegant error is the one that never occurs—don't rely on error messages to patch up sloppy design choices made at the start.
+
+## Show, don't make them remember
+
+Users shouldn't have to memorize product codes, date formats, or the fourth step of an eight-step process. Present selectable options rather than blank fields that demand perfect recall. Recognition is always less taxing than recall. Efficiency for the seasoned, simplicity for the newcomer
+
+Provide shortcuts, quick filters, or bulk actions for power users—but ensure these features don't hinder new users who simply want to complete a single, straightforward task. Good design accommodates both paces simultaneously without making either group feel neglected.
+
+## Disciplined restraint
+
+Every element on the screen must justify its existence. Colors, icons, or dividers that convey no information are merely visual noise that delays users from their goals. Before adding a new element, ask yourself: does this help, or is it just decoration?
+
+## Errors as conversation, not punishment
+
+When something fails, don't throw a stack trace in the user's face. Explain the issue calmly, then indicate the next steps—retry, contact support, or return to a safe state. A good error message reassures and guides rather than assigning blame.
+
+## Help that appears without being intrusive
+
+Documentation and tooltips should be available right where they are needed, not buried on a separate FAQ page. The best help appears the moment confusion arises and vanishes once the task is done—never clinging or disrupting the workflow.
+
+## Responsiveness, accessibility, and speed as the baseline
+
+Build these in as standard: layouts that remain tidy on small screens, clearly visible keyboard focus, animations that respect "reduced motion" preferences, and performance that doesn't keep users waiting. These aren't flashy extras to show off—they are the minimum standards required before something can truly be considered finished.
+
+## Test, refine, polish
+
+Testing and refactoring aren't optional final steps; they are how a project stays healthy as it grows. Critique your code just as you would a design: step back, review it, and have the courage to trim away parts that add complexity without adding value.
