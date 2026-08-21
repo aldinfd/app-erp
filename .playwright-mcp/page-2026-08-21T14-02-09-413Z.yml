@@ -1,0 +1,125 @@
+- generic [ref=f2e2]:
+  - generic [ref=f2e3]:
+    - banner [ref=f2e4]:
+      - generic [ref=f2e5]:
+        - generic [ref=f2e6]:
+          - link "Laravel" [ref=f2e7] [cursor=pointer]:
+            - /url: /
+          - navigation [ref=f2e8]:
+            - link "Katalog" [ref=f2e9] [cursor=pointer]:
+              - /url: /
+        - generic [ref=f2e10]:
+          - link "Keranjang" [ref=f2e11] [cursor=pointer]:
+            - /url: /cart
+          - link "Masuk Staff" [ref=f2e18] [cursor=pointer]:
+            - /url: /login
+    - main [ref=f2e19]:
+      - generic [ref=f2e20]:
+        - generic [ref=f2e23]:
+          - generic [ref=f2e24]:
+            - heading "Katalog Produk" [level=1] [ref=f2e25]
+            - paragraph [ref=f2e26]: Pilih produk, masukkan ke keranjang, lalu checkout tanpa perlu akun.
+          - paragraph [ref=f2e27]: 7 produk tersedia
+        - generic [ref=f2e29]:
+          - generic [ref=f2e36]:
+            - heading "Beras Premium" [level=2] [ref=f2e37]
+            - paragraph [ref=f2e38]:
+              - generic [ref=f2e39]: Rp 15.500
+              - generic [ref=f2e40]: /kg
+            - paragraph [ref=f2e41]:
+              - generic [ref=f2e42]: stok 115.50
+              - generic [ref=f2e44]: SKU-MM-002
+            - generic [ref=f2e45]:
+              - generic [ref=f2e46]:
+                - button "Kurangi jumlah Beras Premium" [ref=f2e47]
+                - spinbutton "Jumlah Beras Premium" [ref=f2e49]: "0.5"
+                - button "Tambah jumlah Beras Premium" [ref=f2e50]
+              - button "Tambah" [ref=f2e52]
+          - generic [ref=f2e59]:
+            - heading "Kaos Polos Hitam" [level=2] [ref=f2e60]
+            - paragraph [ref=f2e61]:
+              - generic [ref=f2e62]: Rp 55.000
+              - generic [ref=f2e63]: /pcs
+            - paragraph [ref=f2e64]:
+              - generic [ref=f2e65]: stok 40
+              - generic [ref=f2e67]: SKU-PK-001
+            - generic [ref=f2e68]:
+              - generic [ref=f2e69]:
+                - button "Kurangi jumlah Kaos Polos Hitam" [ref=f2e70]
+                - spinbutton "Jumlah Kaos Polos Hitam" [ref=f2e72]: "1"
+                - button "Tambah jumlah Kaos Polos Hitam" [ref=f2e73]
+              - button "Tambah" [ref=f2e75]
+          - generic [ref=f2e82]:
+            - heading "Kemeja Flanel Kotak" [level=2] [ref=f2e83]
+            - paragraph [ref=f2e84]:
+              - generic [ref=f2e85]: Rp 129.000
+              - generic [ref=f2e86]: /pcs
+            - paragraph [ref=f2e87]:
+              - generic [ref=f2e88]: stok 8
+              - generic [ref=f2e90]: SKU-PK-002
+            - generic [ref=f2e91]:
+              - generic [ref=f2e92]:
+                - button "Kurangi jumlah Kemeja Flanel Kotak" [ref=f2e93]
+                - spinbutton "Jumlah Kemeja Flanel Kotak" [ref=f2e95]: "1"
+                - button "Tambah jumlah Kemeja Flanel Kotak" [ref=f2e96]
+              - button "Tambah" [ref=f2e98]
+          - generic [ref=f2e105]:
+            - heading "Keyboard Mekanik" [level=2] [ref=f2e106]
+            - paragraph [ref=f2e107]:
+              - generic [ref=f2e108]: Rp 499.000
+              - generic [ref=f2e109]: /pcs
+            - paragraph [ref=f2e110]:
+              - generic [ref=f2e111]: stok 6
+              - generic [ref=f2e113]: SKU-EL-002
+            - generic [ref=f2e114]:
+              - generic [ref=f2e115]:
+                - button "Kurangi jumlah Keyboard Mekanik" [ref=f2e116]
+                - spinbutton "Jumlah Keyboard Mekanik" [ref=f2e118]: "1"
+                - button "Tambah jumlah Keyboard Mekanik" [ref=f2e119]
+              - button "Tambah" [ref=f2e121]
+          - generic [ref=f2e128]:
+            - heading "Kopi Arabika 250gr" [level=2] [ref=f2e129]
+            - paragraph [ref=f2e130]:
+              - generic [ref=f2e131]: Rp 65.000
+              - generic [ref=f2e132]: /pack
+            - paragraph [ref=f2e133]:
+              - generic [ref=f2e134]: stok 60
+              - generic [ref=f2e136]: SKU-MM-001
+            - generic [ref=f2e137]:
+              - generic [ref=f2e138]:
+                - button "Kurangi jumlah Kopi Arabika 250gr" [ref=f2e139]
+                - spinbutton "Jumlah Kopi Arabika 250gr" [ref=f2e141]: "1"
+                - button "Tambah jumlah Kopi Arabika 250gr" [ref=f2e142]
+              - button "Tambah" [ref=f2e144]
+          - generic [ref=f2e151]:
+            - heading "Mouse Wireless" [level=2] [ref=f2e152]
+            - paragraph [ref=f2e153]:
+              - generic [ref=f2e154]: Rp 145.000
+              - generic [ref=f2e155]: /pcs
+            - paragraph [ref=f2e156]:
+              - generic [ref=f2e157]: stok 15
+              - generic [ref=f2e159]: SKU-EL-001
+            - generic [ref=f2e160]:
+              - generic [ref=f2e161]:
+                - button "Kurangi jumlah Mouse Wireless" [ref=f2e162]
+                - spinbutton "Jumlah Mouse Wireless" [ref=f2e164]: "1"
+                - button "Tambah jumlah Mouse Wireless" [ref=f2e165]
+              - button "Tambah" [ref=f2e167]
+          - generic [ref=f2e168]:
+            - generic [ref=f2e169]: Stok habis
+            - generic [ref=f2e175]:
+              - heading "Topping Laptop" [level=2] [ref=f2e176]
+              - paragraph [ref=f2e177]:
+                - generic [ref=f2e178]: Rp 45.000
+                - generic [ref=f2e179]: /pcs
+              - paragraph [ref=f2e180]:
+                - generic [ref=f2e181]: stok 0
+                - generic [ref=f2e183]: SKU-AK-001
+              - generic [ref=f2e184]:
+                - button "Tidak tersedia" [disabled]
+    - contentinfo [ref=f2e185]:
+      - generic [ref=f2e186]:
+        - generic [ref=f2e187]: Laravel
+        - generic [ref=f2e188]: Belanja mudah, pembayaran aman.
+        - generic [ref=f2e189]: © 2026 Laravel.
+  - region "Notifications alt+T"

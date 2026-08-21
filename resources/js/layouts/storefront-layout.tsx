@@ -3,7 +3,7 @@ import { ShoppingCart } from 'lucide-react';
 import { cart, home, login } from '@/routes';
 import { CartProvider, useCart } from '@/components/storefront/cart-context';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Integra';
 
 type Props = {
     children: React.ReactNode;

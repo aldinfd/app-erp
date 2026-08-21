@@ -19,7 +19,7 @@ function Lockup() {
             className="group inline-flex items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-manila/70"
         >
             <span className="flex size-10 items-center justify-center rounded-lg border border-white/15 bg-white/5 transition-colors group-hover:border-manila/40">
-                <AppLogoIcon className="size-5 fill-current text-manila" />
+                <AppLogoIcon className="size-5 text-manila" />
             </span>
             <span className="font-mono text-[10px] font-medium tracking-[0.22em] text-white/55">
                 ERP · BACK OFFICE

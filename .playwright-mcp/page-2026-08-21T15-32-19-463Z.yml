@@ -1,0 +1,87 @@
+- generic [ref=f6e2]:
+  - generic [ref=f6e111]:
+    - generic [ref=f6e115]:
+      - list [ref=f6e117]:
+        - listitem [ref=f6e118]:
+          - link "Integra" [ref=f6e119] [cursor=pointer]:
+            - /url: /dashboard
+      - generic [ref=f6e133]:
+        - generic [ref=f6e134]:
+          - generic [ref=f6e135]: Utama
+          - list [ref=f6e136]:
+            - listitem [ref=f6e137]:
+              - link "Dashboard" [ref=f6e138] [cursor=pointer]:
+                - /url: /dashboard
+        - generic [ref=f6e145]:
+          - generic [ref=f6e146]: Master Data
+          - list [ref=f6e147]:
+            - listitem [ref=f6e148]:
+              - link "Produk" [ref=f6e149] [cursor=pointer]:
+                - /url: /products
+            - listitem [ref=f6e155]:
+              - link "Kategori" [ref=f6e156] [cursor=pointer]:
+                - /url: /categories
+            - listitem [ref=f6e161]:
+              - link "Satuan" [ref=f6e162] [cursor=pointer]:
+                - /url: /units
+        - generic [ref=f6e170]:
+          - generic [ref=f6e171]: Inventory
+          - list [ref=f6e172]:
+            - listitem [ref=f6e173]:
+              - link "Riwayat Stok" [ref=f6e174] [cursor=pointer]:
+                - /url: /stock-movements
+            - listitem [ref=f6e180]:
+              - link "Stock Opname" [ref=f6e181] [cursor=pointer]:
+                - /url: /stock-opname
+        - generic [ref=f6e187]:
+          - generic [ref=f6e188]: Transaksi
+          - list [ref=f6e189]:
+            - listitem [ref=f6e190]:
+              - link "Purchase Order" [ref=f6e191] [cursor=pointer]:
+                - /url: /purchase-orders
+      - list [ref=f6e199]:
+        - listitem [ref=f6e200]:
+          - button "SG Staff gudang staff_gudang" [ref=f6e201]:
+            - generic [ref=f6e202]: SG
+            - generic [ref=f6e204]:
+              - generic [ref=f6e205]: Staff gudang
+              - generic [ref=f6e206]: staff_gudang
+    - main [ref=f6e210]:
+      - generic [ref=f6e212]:
+        - button "Toggle sidebar" [ref=f6e213]
+        - navigation "breadcrumb" [ref=f6e215]:
+          - list [ref=f6e216]:
+            - listitem [ref=f6e217]:
+              - link "Dashboard" [disabled] [ref=f6e218]
+      - generic [ref=f6e219]:
+        - generic [ref=f6e221]:
+          - heading "Dashboard" [level=1] [ref=f6e223]
+          - paragraph [ref=f6e224]: Ringkasan kondisi toko hari ini.
+        - generic [ref=f6e225]:
+          - link [ref=f6e226] [cursor=pointer]:
+            - /url: /products
+            - paragraph [ref=f6e227]: Produk stok menipis
+            - paragraph [ref=f6e228]: "1"
+            - paragraph [ref=f6e229]: stok ≤ titik reorder
+          - link [ref=f6e230] [cursor=pointer]:
+            - /url: /purchase-orders
+            - paragraph [ref=f6e231]: PO menunggu barang
+            - paragraph [ref=f6e232]: "1"
+            - paragraph [ref=f6e233]: sudah dipesan ke vendor
+        - generic [ref=f6e235]:
+          - generic [ref=f6e236]:
+            - heading "Produk stok menipis (1)" [level=2] [ref=f6e237]
+            - link "Kelola produk" [ref=f6e238] [cursor=pointer]:
+              - /url: /products
+          - table [ref=f6e239]:
+            - rowgroup [ref=f6e240]:
+              - row [ref=f6e241]:
+                - columnheader "Produk" [ref=f6e242]
+                - columnheader "Stok" [ref=f6e243]
+                - columnheader "Titik reorder" [ref=f6e244]
+            - rowgroup [ref=f6e245]:
+              - row [ref=f6e246]:
+                - cell "SKU-AK-001 Topping Laptop" [ref=f6e247]
+                - cell "0 pcs" [ref=f6e248]
+                - cell "10 pcs" [ref=f6e249]
+  - region "Notifications alt+T"

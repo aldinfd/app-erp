@@ -1,0 +1,68 @@
+- generic [ref=f6e2]:
+  - generic [ref=f6e3]:
+    - complementary [ref=f6e4]:
+      - link "ERP · BACK OFFICE" [ref=f6e6] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f6e19]:
+        - generic [ref=f6e20]:
+          - heading [level=2] [ref=f6e21]:
+            - text: Stok, penjualan, dan kas —
+            - emphasis [ref=f6e22]: satu buku besar
+            - text: ", selalu seimbang."
+          - paragraph [ref=f6e23]: "Data tidak lagi terpisah-pisah: order, stok, dan keuangan tercatat otomatis dalam satu sistem."
+        - generic [ref=f6e36]:
+          - generic [ref=f6e37]: KARTU STOK — DOKUMEN TERAKHIR
+          - list [ref=f6e47]:
+            - listitem [ref=f6e48]:
+              - generic [ref=f6e49]: SO
+              - generic [ref=f6e50]: Order penjualan
+              - generic [ref=f6e52]: SO-202608-0042
+            - listitem [ref=f6e53]:
+              - generic [ref=f6e54]: PO
+              - generic [ref=f6e55]: Order pembelian
+              - generic [ref=f6e57]: PO-202608-0017
+            - listitem [ref=f6e58]:
+              - generic [ref=f6e59]: INV
+              - generic [ref=f6e60]: Tagihan terbit
+              - generic [ref=f6e62]: INV-202608-0039
+            - listitem [ref=f6e63]:
+              - generic [ref=f6e64]: JE
+              - generic [ref=f6e65]: Jurnal otomatis
+              - generic [ref=f6e67]: JE-202608-0118
+          - generic [ref=f6e68]:
+            - generic [ref=f6e69]:
+              - paragraph [ref=f6e70]: DEBIT
+              - paragraph [ref=f6e71]: 12.480.000
+            - generic [ref=f6e72]:
+              - paragraph [ref=f6e73]: KREDIT
+              - paragraph [ref=f6e74]: 12.480.000
+            - generic [ref=f6e75]: ✓ SEIMBANG
+      - paragraph [ref=f6e76]: UNTUK TIM INTERNAL — ADMIN · GUDANG · FINANCE
+    - main [ref=f6e77]:
+      - generic: SO-202608-0042 · PO-202608-0017 · INV-202608-0039 · JE-202608-0118
+      - generic [ref=f6e78]:
+        - heading "Masuk ke back-office" [level=1] [ref=f6e80]
+        - paragraph [ref=f6e81]: Kelola stok, penjualan, pembelian, dan keuangan toko dari satu tempat.
+        - generic [ref=f6e82]:
+          - button "Masuk dengan passkey" [ref=f6e84]
+          - generic [ref=f6e85]: Atau lanjutkan dengan email
+          - generic [ref=f6e90]:
+            - generic [ref=f6e91]:
+              - generic [ref=f6e92]: Email
+              - textbox "Email" [active] [ref=f6e93]:
+                - /placeholder: nama@toko.com
+            - generic [ref=f6e94]:
+              - generic [ref=f6e95]:
+                - generic [ref=f6e96]: Password
+                - link "Lupa password?" [ref=f6e97] [cursor=pointer]:
+                  - /url: /forgot-password
+              - generic [ref=f6e98]:
+                - textbox "Password" [ref=f6e99]:
+                  - /placeholder: ••••••••
+                - button "Show password" [ref=f6e100]
+            - generic [ref=f6e104]:
+              - checkbox "Ingat saya" [ref=f6e105]
+              - checkbox
+              - generic [ref=f6e106]: Ingat saya
+            - button "Masuk ke back-office" [ref=f6e107]
+  - region "Notifications alt+T"

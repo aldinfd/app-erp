@@ -266,4 +266,20 @@
     .ledger-table tbody tr:hover {
         background: color-mix(in oklab, var(--muted) 40%, transparent);
     }
+
+    /*
+     | Sembunyikan spinner native (panah atas/bawah) pada input[type=number];
+     | kenaikan/penurunan angka cukup lewat tombol +/- di sebelahnya.
+     | Cukup pasang className="no-number-spinner" pada <input type="number">.
+     */
+    .no-number-spinner {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    .no-number-spinner::-webkit-outer-spin-button,
+    .no-number-spinner::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
 }

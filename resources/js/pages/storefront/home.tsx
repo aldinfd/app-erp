@@ -188,7 +188,7 @@ function CatalogCard({ product }: { product: CatalogProduct }) {
                                 min={step}
                                 step={step}
                                 onChange={(event) => setQty(Number(event.target.value))}
-                                className="h-9 w-13 rounded-none border-x border-ink/15 text-center focus-visible:ring-0 dark:border-border"
+                                className="no-number-spinner h-9 w-13 rounded-none border-x border-ink/15 text-center focus-visible:ring-0 dark:border-border"
                                 aria-label={`Jumlah ${product.name}`}
                             />
                             <button
