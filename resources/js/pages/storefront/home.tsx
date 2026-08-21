@@ -172,8 +172,8 @@ function CatalogCard({ product }: { product: CatalogProduct }) {
                 </p>
 
                 {inStock ? (
-                    <div className="mt-auto flex items-center gap-2 pt-2.5">
-                        <div className="flex h-9 items-center rounded-lg border border-ink/15 dark:border-border">
+                    <div className="mt-auto flex flex-col gap-2 pt-2.5 xl:flex-row xl:items-center">
+                        <div className="flex h-9 w-full items-center rounded-lg border border-ink/15 xl:w-auto dark:border-border">
                             <button
                                 type="button"
                                 aria-label={`Kurangi jumlah ${product.name}`}
@@ -188,7 +188,7 @@ function CatalogCard({ product }: { product: CatalogProduct }) {
                                 min={step}
                                 step={step}
                                 onChange={(event) => setQty(Number(event.target.value))}
-                                className="no-number-spinner h-9 w-13 rounded-none border-x border-ink/15 text-center focus-visible:ring-0 dark:border-border"
+                                className="no-number-spinner h-9 flex-1 rounded-none border-x border-ink/15 text-center focus-visible:ring-0 xl:w-13 xl:flex-none dark:border-border"
                                 aria-label={`Jumlah ${product.name}`}
                             />
                             <button
@@ -206,7 +206,7 @@ function CatalogCard({ product }: { product: CatalogProduct }) {
                             disabled={!canAdd}
                             onClick={handleAdd}
                             className={cn(
-                                'h-9 flex-1 rounded-lg bg-ink text-white transition-all hover:bg-ledger active:translate-y-px',
+                                'h-9 w-full rounded-lg bg-ink text-white transition-all hover:bg-ledger active:translate-y-px xl:w-auto xl:flex-1',
                                 added && 'bg-ledger hover:bg-ledger',
                             )}
                         >
