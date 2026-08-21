@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Head, router } from '@inertiajs/react';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency, formatDate } from '@/lib/utils';
@@ -21,6 +22,10 @@ const accountTypeLabels: Record<string, string> = {
     expense: 'Beban',
 };
 
+/** Gaya <select> natif — selaras dengan fokus manila komponen Input. */
+const selectClass =
+    'border-input bg-card h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30';
+
 export default function GeneralLedgerIndex({ accounts, account, ledger, filters }: Props) {
     const [accountId, setAccountId] = React.useState(filters.account_id ?? (account ? String(account.id) : ''));
     const [from, setFrom] = React.useState(filters.from ?? '');
@@ -39,13 +44,11 @@ export default function GeneralLedgerIndex({ accounts, account, ledger, filters 
         );
     }
 
-    const selectClass = 'border-input bg-background h-9 rounded-md border px-3 text-sm';
-
     return (
         <>
             <Head title="Buku Besar" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <h1 className="text-lg font-semibold">Buku Besar</h1>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader title="Buku Besar" description="Mutasi dan saldo per akun." />
 
                 <form onSubmit={applyFilter} className="flex flex-wrap items-center gap-2">
                     <select
@@ -68,55 +71,55 @@ export default function GeneralLedgerIndex({ accounts, account, ledger, filters 
                 </form>
 
                 {account && (
-                    <div className="text-sm text-neutral-500">
+                    <div className="text-sm text-muted-foreground">
                         Akun <span className="font-mono text-xs text-foreground">{account.code}</span> {account.name}
                         {accountTypeLabels[account.type] ? ` (${accountTypeLabels[account.type]})` : ''}
                     </div>
                 )}
 
-                <div className="overflow-x-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-neutral-50 text-left dark:bg-neutral-900">
+                <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
+                    <table className="ledger-table w-full text-sm">
+                        <thead className="text-left">
                             <tr>
-                                <th className="px-4 py-2 font-medium">Tanggal</th>
-                                <th className="px-4 py-2 font-medium">Nomor Jurnal</th>
-                                <th className="px-4 py-2 font-medium">Deskripsi</th>
-                                <th className="px-4 py-2 font-medium text-right">Debit</th>
-                                <th className="px-4 py-2 font-medium text-right">Kredit</th>
-                                <th className="px-4 py-2 font-medium text-right">Saldo</th>
+                                <th className="px-4 py-2.5">Tanggal</th>
+                                <th className="px-4 py-2.5">Nomor Jurnal</th>
+                                <th className="px-4 py-2.5">Deskripsi</th>
+                                <th className="px-4 py-2.5 text-right">Debit</th>
+                                <th className="px-4 py-2.5 text-right">Kredit</th>
+                                <th className="px-4 py-2.5 text-right">Saldo</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="border-t">
-                                <td colSpan={5} className="px-4 py-2 text-neutral-500">
+                            <tr>
+                                <td colSpan={5} className="px-4 py-2.5 text-muted-foreground">
                                     Saldo awal{from ? ` (sebelum ${formatDate(from)})` : ''}
                                 </td>
-                                <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(ledger.opening)}</td>
+                                <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(ledger.opening)}</td>
                             </tr>
                             {ledger.lines.map((line, index) => (
-                                <tr key={`${line.entry_number}-${index}`} className="border-t">
-                                    <td className="px-4 py-2 whitespace-nowrap">{formatDate(line.entry_date)}</td>
-                                    <td className="px-4 py-2 font-mono text-xs">{line.entry_number}</td>
-                                    <td className="px-4 py-2">{line.description}</td>
-                                    <td className="px-4 py-2 text-right tabular-nums">{line.debit > 0 ? formatCurrency(line.debit) : '-'}</td>
-                                    <td className="px-4 py-2 text-right tabular-nums">{line.credit > 0 ? formatCurrency(line.credit) : '-'}</td>
-                                    <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(line.balance)}</td>
+                                <tr key={`${line.entry_number}-${index}`}>
+                                    <td className="px-4 py-2.5 whitespace-nowrap">{formatDate(line.entry_date)}</td>
+                                    <td className="px-4 py-2.5 font-mono text-xs">{line.entry_number}</td>
+                                    <td className="px-4 py-2.5">{line.description}</td>
+                                    <td className="px-4 py-2.5 text-right font-mono">{line.debit > 0 ? formatCurrency(line.debit) : '-'}</td>
+                                    <td className="px-4 py-2.5 text-right font-mono">{line.credit > 0 ? formatCurrency(line.credit) : '-'}</td>
+                                    <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(line.balance)}</td>
                                 </tr>
                             ))}
                             {ledger.lines.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-4 py-8 text-center text-neutral-500">
+                                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                                         Tidak ada mutasi pada rentang ini.
                                     </td>
                                 </tr>
                             )}
                         </tbody>
                         <tfoot>
-                            <tr className="border-t bg-neutral-50 dark:bg-neutral-900">
-                                <td colSpan={3} className="px-4 py-2 font-medium">Total mutasi</td>
-                                <td className="px-4 py-2 text-right font-medium tabular-nums">{formatCurrency(ledger.total_debit)}</td>
-                                <td className="px-4 py-2 text-right font-medium tabular-nums">{formatCurrency(ledger.total_credit)}</td>
-                                <td className="px-4 py-2 text-right font-medium tabular-nums">{formatCurrency(ledger.closing)}</td>
+                            <tr className="border-t border-dashed bg-muted/60">
+                                <td colSpan={3} className="px-4 py-2.5 font-medium">Total mutasi</td>
+                                <td className="px-4 py-2.5 text-right font-mono font-medium">{formatCurrency(ledger.total_debit)}</td>
+                                <td className="px-4 py-2.5 text-right font-mono font-medium">{formatCurrency(ledger.total_credit)}</td>
+                                <td className="px-4 py-2.5 text-right font-mono font-medium">{formatCurrency(ledger.closing)}</td>
                             </tr>
                         </tfoot>
                     </table>

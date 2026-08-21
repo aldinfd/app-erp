@@ -1,5 +1,6 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -15,10 +16,10 @@ export default function VendorsEdit({ vendor }: Props) {
     return (
         <>
             <Head title={`Edit Vendor — ${vendor.name}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <h1 className="text-lg font-semibold">Edit Vendor</h1>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader title="Edit Vendor" description={vendor.name} />
 
-                <Form {...update.form({ vendor: vendor.id })} className="max-w-lg space-y-4">
+                <Form {...update.form({ vendor: vendor.id })} className="max-w-lg space-y-5 rounded-xl border bg-card p-6 shadow-xs">
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
@@ -46,7 +47,7 @@ export default function VendorsEdit({ vendor }: Props) {
                                     name="address"
                                     rows={3}
                                     defaultValue={vendor.address ?? ''}
-                                    className="border-input bg-background rounded-md border px-3 py-2 text-sm"
+                                    className="border-input bg-card min-h-11 w-full rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30"
                                 />
                                 <InputError message={errors.address} />
                             </div>

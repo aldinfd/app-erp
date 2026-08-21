@@ -1,5 +1,6 @@
 import { Form, Head, router } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +27,8 @@ type Props = {
     canPay: boolean;
 };
 
-const selectClass = 'border-input bg-background h-9 rounded-md border px-3 text-sm';
+const selectClass =
+    'border-input bg-card h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30';
 
 export default function PurchaseOrderShow({ order, canOrder, canReceive, canCancel, canRecordInvoice, canPay }: Props) {
     const invoice = order.invoice;
@@ -54,114 +56,121 @@ export default function PurchaseOrderShow({ order, canOrder, canReceive, canCanc
     return (
         <>
             <Head title={`PO ${order.po_number}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <h1 className="font-mono text-lg font-semibold">{order.po_number}</h1>
-                        <Badge variant={purchaseOrderStatusVariants[order.status]}>
-                            {purchaseOrderStatusLabels[order.status]}
-                        </Badge>
-                    </div>
-                    <div className="flex gap-2">
-                        {canOrder && (
-                            <Button size="sm" onClick={() => handleStatusAction('ordered')}>
-                                Tandai Dipesan
-                            </Button>
-                        )}
-                        {canReceive && (
-                            <Button size="sm" onClick={() => handleStatusAction('receive')}>
-                                Terima Barang
-                            </Button>
-                        )}
-                        {canCancel && (
-                            <Button variant="destructive" size="sm" onClick={() => handleStatusAction('cancel')}>
-                                Batalkan PO
-                            </Button>
-                        )}
-                    </div>
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader
+                    title={order.po_number}
+                    description="Purchase Order"
+                    actions={
+                        <>
+                            <Badge variant={purchaseOrderStatusVariants[order.status]}>
+                                {purchaseOrderStatusLabels[order.status]}
+                            </Badge>
+                            {canOrder && (
+                                <Button size="sm" onClick={() => handleStatusAction('ordered')}>
+                                    Tandai Dipesan
+                                </Button>
+                            )}
+                            {canReceive && (
+                                <Button size="sm" onClick={() => handleStatusAction('receive')}>
+                                    Terima Barang
+                                </Button>
+                            )}
+                            {canCancel && (
+                                <Button variant="destructive" size="sm" onClick={() => handleStatusAction('cancel')}>
+                                    Batalkan PO
+                                </Button>
+                            )}
+                        </>
+                    }
+                />
 
                 <div className="grid gap-4 lg:grid-cols-3">
                     {/* Data vendor */}
-                    <section className="rounded-lg border p-4">
-                        <h2 className="mb-3 text-sm font-semibold">Vendor</h2>
+                    <section className="rounded-xl border bg-card p-4 shadow-xs">
+                        <h2 className="mb-3 font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
+                            Vendor
+                        </h2>
                         <dl className="space-y-1 text-sm">
                             <div className="flex justify-between gap-4">
-                                <dt className="text-neutral-500">Nama</dt>
+                                <dt className="text-muted-foreground">Nama</dt>
                                 <dd>{order.vendor?.name ?? '-'}</dd>
                             </div>
                             <div className="flex justify-between gap-4">
-                                <dt className="text-neutral-500">Email</dt>
+                                <dt className="text-muted-foreground">Email</dt>
                                 <dd className="truncate">{order.vendor?.email ?? '-'}</dd>
                             </div>
                             <div className="flex justify-between gap-4">
-                                <dt className="text-neutral-500">Telepon</dt>
+                                <dt className="text-muted-foreground">Telepon</dt>
                                 <dd>{order.vendor?.phone ?? '-'}</dd>
                             </div>
                             <div>
-                                <dt className="text-neutral-500">Alamat</dt>
+                                <dt className="text-muted-foreground">Alamat</dt>
                                 <dd className="mt-1">{order.vendor?.address ?? '-'}</dd>
                             </div>
                         </dl>
                     </section>
 
                     {/* Ringkasan nominal */}
-                    <section className="rounded-lg border p-4">
-                        <h2 className="mb-3 text-sm font-semibold">Ringkasan</h2>
+                    <section className="rounded-xl border bg-card p-4 shadow-xs">
+                        <h2 className="mb-3 font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
+                            Ringkasan
+                        </h2>
                         <dl className="space-y-1 text-sm">
                             <div className="flex justify-between gap-4">
-                                <dt className="text-neutral-500">Tanggal PO</dt>
+                                <dt className="text-muted-foreground">Tanggal PO</dt>
                                 <dd>{formatDate(order.order_date)}</dd>
                             </div>
                             <div className="flex justify-between gap-4">
-                                <dt className="text-neutral-500">Estimasi Datang</dt>
+                                <dt className="text-muted-foreground">Estimasi Datang</dt>
                                 <dd>{order.expected_date ? formatDate(order.expected_date) : '-'}</dd>
                             </div>
                             <div className="flex justify-between gap-4">
-                                <dt className="text-neutral-500">Subtotal</dt>
-                                <dd>{formatCurrency(order.subtotal)}</dd>
+                                <dt className="text-muted-foreground">Subtotal</dt>
+                                <dd className="font-mono">{formatCurrency(order.subtotal)}</dd>
                             </div>
                             <div className="flex justify-between gap-4">
-                                <dt className="text-neutral-500">Pajak</dt>
-                                <dd>{formatCurrency(order.tax)}</dd>
+                                <dt className="text-muted-foreground">Pajak</dt>
+                                <dd className="font-mono">{formatCurrency(order.tax)}</dd>
                             </div>
-                            <div className="mt-2 flex justify-between gap-4 border-t pt-2 font-semibold">
+                            <div className="mt-2 flex justify-between gap-4 border-t border-dashed pt-2 font-semibold">
                                 <dt>Total</dt>
-                                <dd>{formatCurrency(order.grand_total)}</dd>
+                                <dd className="font-mono">{formatCurrency(order.grand_total)}</dd>
                             </div>
                         </dl>
                         {order.notes && (
-                            <p className="mt-3 border-t pt-3 text-xs text-neutral-500">{order.notes}</p>
+                            <p className="mt-3 border-t pt-3 text-xs text-muted-foreground">{order.notes}</p>
                         )}
                     </section>
 
                     {/* Invoice vendor */}
-                    <section className="rounded-lg border p-4">
-                        <h2 className="mb-3 text-sm font-semibold">Invoice Vendor</h2>
+                    <section className="rounded-xl border bg-card p-4 shadow-xs">
+                        <h2 className="mb-3 font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
+                            Invoice Vendor
+                        </h2>
                         {invoice ? (
                             <dl className="space-y-1 text-sm">
                                 <div className="flex justify-between gap-4">
-                                    <dt className="text-neutral-500">Nomor</dt>
+                                    <dt className="text-muted-foreground">Nomor</dt>
                                     <dd className="font-mono text-xs">{invoice.vendor_invoice_number}</dd>
                                 </div>
                                 <div className="flex justify-between gap-4">
-                                    <dt className="text-neutral-500">Tanggal</dt>
+                                    <dt className="text-muted-foreground">Tanggal</dt>
                                     <dd>{formatDate(invoice.invoice_date)}</dd>
                                 </div>
                                 <div className="flex justify-between gap-4">
-                                    <dt className="text-neutral-500">Jatuh Tempo</dt>
+                                    <dt className="text-muted-foreground">Jatuh Tempo</dt>
                                     <dd>{invoice.due_date ? formatDate(invoice.due_date) : '-'}</dd>
                                 </div>
                                 <div className="flex justify-between gap-4">
-                                    <dt className="text-neutral-500">Jumlah</dt>
-                                    <dd>{formatCurrency(invoice.amount)}</dd>
+                                    <dt className="text-muted-foreground">Jumlah</dt>
+                                    <dd className="font-mono">{formatCurrency(invoice.amount)}</dd>
                                 </div>
                                 <div className="flex justify-between gap-4">
-                                    <dt className="text-neutral-500">Dibayar</dt>
-                                    <dd>{formatCurrency(invoice.amount_paid)}</dd>
+                                    <dt className="text-muted-foreground">Dibayar</dt>
+                                    <dd className="font-mono">{formatCurrency(invoice.amount_paid)}</dd>
                                 </div>
                                 <div className="flex items-center justify-between gap-4">
-                                    <dt className="text-neutral-500">Status</dt>
+                                    <dt className="text-muted-foreground">Status</dt>
                                     <dd>
                                         <Badge variant={vendorInvoiceStatusVariants[invoice.status]}>
                                             {vendorInvoiceStatusLabels[invoice.status]}
@@ -169,59 +178,66 @@ export default function PurchaseOrderShow({ order, canOrder, canReceive, canCanc
                                     </dd>
                                 </div>
                                 {remaining > 0 && (
-                                    <div className="flex justify-between gap-4 border-t pt-2">
-                                        <dt className="text-neutral-500">Sisa</dt>
-                                        <dd className="font-semibold">{formatCurrency(remaining)}</dd>
+                                    <div className="flex justify-between gap-4 border-t border-dashed pt-2">
+                                        <dt className="text-muted-foreground">Sisa</dt>
+                                        <dd className="font-mono font-semibold">{formatCurrency(remaining)}</dd>
                                     </div>
                                 )}
                             </dl>
                         ) : (
-                            <p className="text-sm text-neutral-500">Belum ada invoice vendor.</p>
+                            <p className="text-sm text-muted-foreground">Belum ada invoice vendor.</p>
                         )}
                     </section>
                 </div>
 
                 {/* Item PO */}
-                <section className="overflow-x-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-neutral-50 text-left dark:bg-neutral-900">
-                            <tr>
-                                <th className="px-4 py-2 font-medium">SKU</th>
-                                <th className="px-4 py-2 font-medium">Produk</th>
-                                <th className="px-4 py-2 font-medium text-right">Qty</th>
-                                <th className="px-4 py-2 font-medium text-right">Harga Beli</th>
-                                <th className="px-4 py-2 font-medium text-right">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {order.items.map((item) => {
-                                const unit = item.product?.unit ?? null;
+                <section className="overflow-hidden rounded-xl border bg-card shadow-xs">
+                    <h2 className="border-b border-dashed px-4 py-3 font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
+                        Item PO
+                    </h2>
+                    <div className="overflow-x-auto">
+                        <table className="ledger-table w-full text-sm">
+                            <thead className="text-left">
+                                <tr>
+                                    <th className="px-4 py-2.5">SKU</th>
+                                    <th className="px-4 py-2.5">Produk</th>
+                                    <th className="px-4 py-2.5 text-right">Qty</th>
+                                    <th className="px-4 py-2.5 text-right">Harga Beli</th>
+                                    <th className="px-4 py-2.5 text-right">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {order.items.map((item) => {
+                                    const unit = item.product?.unit ?? null;
 
-                                return (
-                                    <tr key={item.id} className="border-t">
-                                        <td className="px-4 py-2 font-mono text-xs">{item.product?.sku ?? '-'}</td>
-                                        <td className="px-4 py-2">{item.product?.name ?? '-'}</td>
-                                        <td className="px-4 py-2 text-right font-mono">
-                                            {formatQty(item.qty, unit?.allows_fraction ?? false)}{' '}
-                                            {unit?.abbreviation ?? ''}
-                                        </td>
-                                        <td className="px-4 py-2 text-right whitespace-nowrap">
-                                            {formatCurrency(item.unit_cost)}
-                                        </td>
-                                        <td className="px-4 py-2 text-right whitespace-nowrap">
-                                            {formatCurrency(item.subtotal)}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                                    return (
+                                        <tr key={item.id}>
+                                            <td className="px-4 py-2.5 font-mono text-xs">{item.product?.sku ?? '-'}</td>
+                                            <td className="px-4 py-2.5 font-medium">{item.product?.name ?? '-'}</td>
+                                            <td className="px-4 py-2.5 text-right font-mono">
+                                                {formatQty(item.qty, unit?.allows_fraction ?? false)}{' '}
+                                                {unit?.abbreviation ?? ''}
+                                            </td>
+                                            <td className="px-4 py-2.5 text-right font-mono whitespace-nowrap">
+                                                {formatCurrency(item.unit_cost)}
+                                            </td>
+                                            <td className="px-4 py-2.5 text-right font-mono whitespace-nowrap">
+                                                {formatCurrency(item.subtotal)}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
 
                 {/* Form catat invoice vendor (finance, PO received belum ada invoice) */}
                 {canRecordInvoice && (
-                    <section className="rounded-lg border p-4">
-                        <h2 className="mb-3 text-sm font-semibold">Catat Invoice Vendor</h2>
+                    <section className="rounded-xl border bg-card p-4 shadow-xs">
+                        <h2 className="mb-3 font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
+                            Catat Invoice Vendor
+                        </h2>
                         <Form {...storeVendorInvoice.form({ purchase_order: order.id })} className="grid gap-4 sm:grid-cols-5">
                             {({ processing, errors }) => (
                                 <>
@@ -258,45 +274,52 @@ export default function PurchaseOrderShow({ order, canOrder, canReceive, canCanc
 
                 {/* Riwayat pembayaran vendor */}
                 {invoice && (
-                    <section className="overflow-x-auto rounded-lg border">
-                        <table className="w-full text-sm">
-                            <thead className="bg-neutral-50 text-left dark:bg-neutral-900">
-                                <tr>
-                                    <th className="px-4 py-2 font-medium">Metode</th>
-                                    <th className="px-4 py-2 font-medium">No. Referensi</th>
-                                    <th className="px-4 py-2 font-medium text-right">Jumlah</th>
-                                    <th className="px-4 py-2 font-medium">Tanggal Bayar</th>
-                                    <th className="px-4 py-2 font-medium">Catatan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {invoice.payments.map((payment) => (
-                                    <tr key={payment.id} className="border-t">
-                                        <td className="px-4 py-2">{vendorPaymentMethodLabels[payment.method] ?? payment.method}</td>
-                                        <td className="px-4 py-2 font-mono text-xs">{payment.reference_no ?? '-'}</td>
-                                        <td className="px-4 py-2 text-right whitespace-nowrap">
-                                            {formatCurrency(payment.amount)}
-                                        </td>
-                                        <td className="px-4 py-2 whitespace-nowrap">{formatDate(payment.paid_at)}</td>
-                                        <td className="px-4 py-2 text-neutral-500">{payment.notes ?? '-'}</td>
-                                    </tr>
-                                ))}
-                                {invoice.payments.length === 0 && (
+                    <section className="overflow-hidden rounded-xl border bg-card shadow-xs">
+                        <h2 className="border-b border-dashed px-4 py-3 font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
+                            Riwayat Pembayaran Vendor
+                        </h2>
+                        <div className="overflow-x-auto">
+                            <table className="ledger-table w-full text-sm">
+                                <thead className="text-left">
                                     <tr>
-                                        <td colSpan={5} className="px-4 py-8 text-center text-neutral-500">
-                                            Belum ada pembayaran.
-                                        </td>
+                                        <th className="px-4 py-2.5">Metode</th>
+                                        <th className="px-4 py-2.5">No. Referensi</th>
+                                        <th className="px-4 py-2.5 text-right">Jumlah</th>
+                                        <th className="px-4 py-2.5">Tanggal Bayar</th>
+                                        <th className="px-4 py-2.5">Catatan</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {invoice.payments.map((payment) => (
+                                        <tr key={payment.id}>
+                                            <td className="px-4 py-2.5">{vendorPaymentMethodLabels[payment.method] ?? payment.method}</td>
+                                            <td className="px-4 py-2.5 font-mono text-xs">{payment.reference_no ?? '-'}</td>
+                                            <td className="px-4 py-2.5 text-right font-mono whitespace-nowrap">
+                                                {formatCurrency(payment.amount)}
+                                            </td>
+                                            <td className="px-4 py-2.5 whitespace-nowrap">{formatDate(payment.paid_at)}</td>
+                                            <td className="px-4 py-2.5 text-muted-foreground">{payment.notes ?? '-'}</td>
+                                        </tr>
+                                    ))}
+                                    {invoice.payments.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                                                Belum ada pembayaran.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </section>
                 )}
 
                 {/* Form bayar vendor (finance, invoice belum lunas) */}
                 {canPay && invoice && (
-                    <section className="rounded-lg border p-4">
-                        <h2 className="mb-3 text-sm font-semibold">Bayar Invoice Vendor</h2>
+                    <section className="rounded-xl border bg-card p-4 shadow-xs">
+                        <h2 className="mb-3 font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
+                            Bayar Invoice Vendor
+                        </h2>
                         <Form {...storeVendorPayment.form({ vendor_invoice: invoice.id })} className="grid gap-4 sm:grid-cols-6">
                             {({ processing, errors }) => (
                                 <>
@@ -329,7 +352,7 @@ export default function PurchaseOrderShow({ order, canOrder, canReceive, canCanc
                                             id="pay_notes"
                                             name="notes"
                                             rows={1}
-                                            className="border-input bg-background rounded-md border px-3 py-2 text-sm"
+                                            className="border-input bg-card min-h-11 w-full rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30"
                                         />
                                         <InputError message={errors.notes} />
                                     </div>

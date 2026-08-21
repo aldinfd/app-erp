@@ -1,5 +1,6 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,10 +15,10 @@ export default function CustomersEdit({ customer }: Props) {
     return (
         <>
             <Head title={`Edit Customer — ${customer.name}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <h1 className="text-lg font-semibold">Edit Customer</h1>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader title="Edit Customer" description={customer.name} />
 
-                <Form {...update.form({ customer: customer.id })} className="max-w-lg space-y-4">
+                <Form {...update.form({ customer: customer.id })} className="max-w-lg space-y-5 rounded-xl border bg-card p-6 shadow-xs">
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
@@ -45,7 +46,7 @@ export default function CustomersEdit({ customer }: Props) {
                                     name="address"
                                     rows={3}
                                     defaultValue={customer.address ?? ''}
-                                    className="border-input bg-background rounded-md border px-3 py-2 text-sm"
+                                    className="border-input bg-card min-h-11 w-full rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30"
                                 />
                                 <InputError message={errors.address} />
                             </div>

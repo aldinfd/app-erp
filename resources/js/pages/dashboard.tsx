@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { SalesChart } from '@/components/dashboard/sales-chart';
 import { StatTile } from '@/components/dashboard/stat-tile';
+import { PageHeader } from '@/components/page-header';
 import { formatCurrency, formatQty } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as productsIndex } from '@/routes/products';
@@ -37,8 +38,11 @@ export default function Dashboard({
     return (
         <>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <h1 className="text-lg font-semibold">Dashboard</h1>
+            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+                <PageHeader
+                    title="Dashboard"
+                    description="Ringkasan kondisi toko hari ini."
+                />
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {lowStock && (
@@ -94,18 +98,20 @@ export default function Dashboard({
                     <div className="grid gap-4 lg:grid-cols-2">
                         {salesChart && (
                             <section
-                                className={`rounded-lg border p-4 ${lowStock ? '' : 'lg:col-span-2'}`}
+                                className={`rounded-xl border bg-card p-4 shadow-xs ${lowStock ? '' : 'lg:col-span-2'}`}
                             >
                                 <div className="mb-4 flex items-start justify-between gap-4">
                                     <div>
-                                        <h2 className="text-sm font-medium">Penjualan 6 bulan terakhir</h2>
-                                        <p className="text-xs text-neutral-500">
+                                        <h2 className="font-mono text-[10px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
+                                            Penjualan 6 bulan terakhir
+                                        </h2>
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                             Revenue dari order berstatus paid per bulan
                                         </p>
                                     </div>
                                     <Link
                                         href={incomeStatementShow.url()}
-                                        className="text-xs text-neutral-500 whitespace-nowrap hover:underline"
+                                        className="text-xs whitespace-nowrap text-muted-foreground hover:text-foreground hover:underline"
                                     >
                                         Lihat Laba Rugi
                                     </Link>
@@ -116,30 +122,30 @@ export default function Dashboard({
 
                         {lowStock && (
                             <section
-                                className={`overflow-hidden rounded-lg border ${salesChart ? '' : 'lg:col-span-2'}`}
+                                className={`overflow-hidden rounded-xl border bg-card shadow-xs ${salesChart ? '' : 'lg:col-span-2'}`}
                             >
-                                <div className="flex items-center justify-between bg-neutral-50 px-4 py-2 dark:bg-neutral-900">
-                                    <h2 className="text-sm font-medium">
+                                <div className="flex items-center justify-between border-b border-dashed px-4 py-2.5">
+                                    <h2 className="font-mono text-[10px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
                                         Produk stok menipis ({lowStock.count})
                                     </h2>
                                     <Link
                                         href={productsIndex.url()}
-                                        className="text-xs text-neutral-500 hover:underline"
+                                        className="text-xs text-muted-foreground hover:text-foreground hover:underline"
                                     >
                                         Kelola produk
                                     </Link>
                                 </div>
-                                <table className="w-full text-sm">
+                                <table className="ledger-table w-full text-sm">
                                     <thead className="text-left">
-                                        <tr className="border-t">
-                                            <th className="px-4 py-2 font-medium">Produk</th>
-                                            <th className="px-4 py-2 text-right font-medium">Stok</th>
-                                            <th className="px-4 py-2 text-right font-medium">Titik reorder</th>
+                                        <tr>
+                                            <th className="px-4 py-2">Produk</th>
+                                            <th className="px-4 py-2 text-right">Stok</th>
+                                            <th className="px-4 py-2 text-right">Titik reorder</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {lowStock.products.map((product) => (
-                                            <tr key={product.id} className="border-t">
+                                            <tr key={product.id}>
                                                 <td className="px-4 py-2">
                                                     <span className="font-mono text-xs">{product.sku}</span>{' '}
                                                     {product.name}
@@ -158,7 +164,7 @@ export default function Dashboard({
                                             <tr>
                                                 <td
                                                     colSpan={3}
-                                                    className="px-4 py-4 text-center text-neutral-500"
+                                                    className="px-4 py-4 text-center text-muted-foreground"
                                                 >
                                                     Tidak ada produk stok menipis.
                                                 </td>
@@ -167,7 +173,7 @@ export default function Dashboard({
                                     </tbody>
                                 </table>
                                 {lowStock.count > lowStock.products.length && (
-                                    <p className="border-t px-4 py-2 text-xs text-neutral-500">
+                                    <p className="border-t border-dashed px-4 py-2 text-xs text-muted-foreground">
                                         Menampilkan {lowStock.products.length} stok terendah dari{' '}
                                         {lowStock.count} produk.
                                     </p>

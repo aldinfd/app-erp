@@ -1,5 +1,6 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -15,10 +16,10 @@ export default function UnitsEdit({ unit }: Props) {
     return (
         <>
             <Head title={`Edit Satuan — ${unit.name}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <h1 className="text-lg font-semibold">Edit Satuan</h1>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader title="Edit Satuan" description={unit.name} />
 
-                <Form {...update.form({ unit: unit.id })} className="max-w-lg space-y-4">
+                <Form {...update.form({ unit: unit.id })} className="max-w-lg space-y-5 rounded-xl border bg-card p-6 shadow-xs">
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">

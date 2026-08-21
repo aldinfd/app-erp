@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Pagination } from '@/components/master/pagination';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { create, destroy, edit, index } from '@/routes/customers';
@@ -28,13 +29,15 @@ export default function CustomersIndex({ customers, filters }: Props) {
     return (
         <>
             <Head title="Customer" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <h1 className="text-lg font-semibold">Customer</h1>
-                    <Button asChild>
-                        <Link href={create.url()}>Tambah Customer</Link>
-                    </Button>
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader
+                    title="Customer"
+                    actions={
+                        <Button asChild>
+                            <Link href={create.url()}>Tambah Customer</Link>
+                        </Button>
+                    }
+                />
 
                 <form onSubmit={applySearch} className="flex max-w-sm gap-2">
                     <Input
@@ -48,23 +51,23 @@ export default function CustomersIndex({ customers, filters }: Props) {
                     </Button>
                 </form>
 
-                <div className="overflow-x-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-neutral-50 text-left dark:bg-neutral-900">
+                <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
+                    <table className="ledger-table w-full text-sm">
+                        <thead className="text-left">
                             <tr>
-                                <th className="px-4 py-2 font-medium">Nama</th>
-                                <th className="px-4 py-2 font-medium">Email</th>
-                                <th className="px-4 py-2 font-medium">Telepon</th>
-                                <th className="px-4 py-2 font-medium">Aksi</th>
+                                <th className="px-4 py-2.5">Nama</th>
+                                <th className="px-4 py-2.5">Email</th>
+                                <th className="px-4 py-2.5">Telepon</th>
+                                <th className="px-4 py-2.5">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             {customers.data.map((customer) => (
-                                <tr key={customer.id} className="border-t">
-                                    <td className="px-4 py-2">{customer.name}</td>
-                                    <td className="px-4 py-2">{customer.email ?? '-'}</td>
-                                    <td className="px-4 py-2">{customer.phone ?? '-'}</td>
-                                    <td className="px-4 py-2">
+                                <tr key={customer.id}>
+                                    <td className="px-4 py-2.5 font-medium">{customer.name}</td>
+                                    <td className="px-4 py-2.5">{customer.email ?? '-'}</td>
+                                    <td className="px-4 py-2.5 font-mono text-xs">{customer.phone ?? '-'}</td>
+                                    <td className="px-4 py-2.5">
                                         <div className="flex gap-2">
                                             <Button asChild variant="outline" size="sm">
                                                 <Link href={edit.url({ customer: customer.id })}>Edit</Link>
@@ -82,7 +85,7 @@ export default function CustomersIndex({ customers, filters }: Props) {
                             ))}
                             {customers.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={4} className="px-4 py-8 text-center text-neutral-500">
+                                    <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
                                         Tidak ada customer.
                                     </td>
                                 </tr>

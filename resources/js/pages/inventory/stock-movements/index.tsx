@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Head, router } from '@inertiajs/react';
 import { Pagination } from '@/components/master/pagination';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,10 @@ const REFERENCE_LABELS: Record<string, string> = {
     purchase_order: 'Purchase Order',
     stock_opname: 'Stock Opname',
 };
+
+/** Gaya <select> natif — selaras dengan fokus manila komponen Input. */
+const selectClass =
+    'border-input bg-card h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30';
 
 function formatSignedQty(movement: StockMovement): string {
     const qty = Number(movement.qty);
@@ -66,11 +71,11 @@ export default function StockMovementsIndex({ movements, types, filters }: Props
     return (
         <>
             <Head title="Riwayat Stok" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <h1 className="text-lg font-semibold">Riwayat Stok</h1>
-                    <p className="text-sm text-neutral-500">Perubahan stok hanya dicatat otomatis — tidak bisa diedit/dihapus.</p>
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader
+                    title="Riwayat Stok"
+                    description="Perubahan stok hanya dicatat otomatis — tidak bisa diedit/dihapus."
+                />
 
                 <form onSubmit={applyFilter} className="flex flex-wrap items-center gap-2">
                     <Input
@@ -84,7 +89,7 @@ export default function StockMovementsIndex({ movements, types, filters }: Props
                         name="type"
                         value={type}
                         onChange={(e) => setType(e.target.value)}
-                        className="border-input bg-background h-9 rounded-md border px-3 text-sm"
+                        className={selectClass}
                     >
                         <option value="">Semua tipe</option>
                         {types.map((movementType) => (
@@ -112,31 +117,31 @@ export default function StockMovementsIndex({ movements, types, filters }: Props
                     </Button>
                 </form>
 
-                <div className="overflow-x-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-neutral-50 text-left dark:bg-neutral-900">
+                <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
+                    <table className="ledger-table w-full text-sm">
+                        <thead className="text-left">
                             <tr>
-                                <th className="px-4 py-2 font-medium">Tanggal</th>
-                                <th className="px-4 py-2 font-medium">Produk</th>
-                                <th className="px-4 py-2 font-medium">Tipe</th>
-                                <th className="px-4 py-2 font-medium text-right">Qty</th>
-                                <th className="px-4 py-2 font-medium text-right">Stok Awal</th>
-                                <th className="px-4 py-2 font-medium text-right">Stok Akhir</th>
-                                <th className="px-4 py-2 font-medium">Referensi</th>
-                                <th className="px-4 py-2 font-medium">Oleh</th>
-                                <th className="px-4 py-2 font-medium">Catatan</th>
+                                <th className="px-4 py-2.5">Tanggal</th>
+                                <th className="px-4 py-2.5">Produk</th>
+                                <th className="px-4 py-2.5">Tipe</th>
+                                <th className="px-4 py-2.5 text-right">Qty</th>
+                                <th className="px-4 py-2.5 text-right">Stok Awal</th>
+                                <th className="px-4 py-2.5 text-right">Stok Akhir</th>
+                                <th className="px-4 py-2.5">Referensi</th>
+                                <th className="px-4 py-2.5">Oleh</th>
+                                <th className="px-4 py-2.5">Catatan</th>
                             </tr>
                         </thead>
                         <tbody>
                             {movements.data.map((movement) => (
-                                <tr key={movement.id} className="border-t">
-                                    <td className="px-4 py-2 whitespace-nowrap">{formatDateTime(movement.created_at)}</td>
-                                    <td className="px-4 py-2">
+                                <tr key={movement.id}>
+                                    <td className="px-4 py-2.5 font-mono text-xs whitespace-nowrap">{formatDateTime(movement.created_at)}</td>
+                                    <td className="px-4 py-2.5">
                                         <span className="font-mono text-xs">{movement.product?.sku}</span>
                                         <br />
                                         {movement.product?.name}
                                     </td>
-                                    <td className="px-4 py-2">
+                                    <td className="px-4 py-2.5">
                                         <Badge
                                             variant={
                                                 movement.type === 'in' ? 'default' : movement.type === 'out' ? 'destructive' : 'secondary'
@@ -146,30 +151,30 @@ export default function StockMovementsIndex({ movements, types, filters }: Props
                                         </Badge>
                                     </td>
                                     <td
-                                        className={`px-4 py-2 text-right font-mono ${
+                                        className={`px-4 py-2.5 text-right font-mono ${
                                             Number(movement.qty) < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
                                         }`}
                                     >
                                         {formatSignedQty(movement)}
                                     </td>
-                                    <td className="px-4 py-2 text-right font-mono">
+                                    <td className="px-4 py-2.5 text-right font-mono">
                                         {formatQty(movement.before_qty, movement.product?.unit?.allows_fraction)}
                                     </td>
-                                    <td className="px-4 py-2 text-right font-mono">
+                                    <td className="px-4 py-2.5 text-right font-mono">
                                         {formatQty(movement.after_qty, movement.product?.unit?.allows_fraction)}
                                     </td>
-                                    <td className="px-4 py-2 whitespace-nowrap">
+                                    <td className="px-4 py-2.5 whitespace-nowrap">
                                         {movement.reference_type
                                             ? `${REFERENCE_LABELS[movement.reference_type] ?? movement.reference_type}${movement.reference_id ? ` #${movement.reference_id}` : ''}`
                                             : '-'}
                                     </td>
-                                    <td className="px-4 py-2 whitespace-nowrap">{movement.user?.name ?? 'Sistem'}</td>
-                                    <td className="max-w-48 truncate px-4 py-2">{movement.note ?? '-'}</td>
+                                    <td className="px-4 py-2.5 whitespace-nowrap">{movement.user?.name ?? 'Sistem'}</td>
+                                    <td className="max-w-48 truncate px-4 py-2.5">{movement.note ?? '-'}</td>
                                 </tr>
                             ))}
                             {movements.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={9} className="px-4 py-8 text-center text-neutral-500">
+                                    <td colSpan={9} className="px-4 py-8 text-center text-muted-foreground">
                                         Belum ada perubahan stok.
                                     </td>
                                 </tr>

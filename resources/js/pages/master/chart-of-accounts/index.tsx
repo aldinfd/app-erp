@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Pagination } from '@/components/master/pagination';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,10 @@ const TYPE_LABELS: Record<string, string> = {
     revenue: 'Pendapatan',
     expense: 'Beban',
 };
+
+/** Gaya <select> natif — selaras dengan fokus manila komponen Input. */
+const selectClass =
+    'border-input bg-card h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30';
 
 export default function ChartOfAccountsIndex({ accounts, types, filters }: Props) {
     const [q, setQ] = React.useState(filters.q ?? '');
@@ -43,13 +48,16 @@ export default function ChartOfAccountsIndex({ accounts, types, filters }: Props
     return (
         <>
             <Head title="Chart of Accounts" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <h1 className="text-lg font-semibold">Chart of Accounts</h1>
-                    <Button asChild>
-                        <Link href={create.url()}>Tambah Akun</Link>
-                    </Button>
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader
+                    title="Chart of Accounts"
+                    description="Bagan akun double-entry."
+                    actions={
+                        <Button asChild>
+                            <Link href={create.url()}>Tambah Akun</Link>
+                        </Button>
+                    }
+                />
 
                 <form onSubmit={applyFilter} className="flex flex-wrap items-center gap-2">
                     <Input
@@ -63,7 +71,7 @@ export default function ChartOfAccountsIndex({ accounts, types, filters }: Props
                         name="type"
                         value={type}
                         onChange={(e) => setType(e.target.value)}
-                        className="border-input bg-background h-9 rounded-md border px-3 text-sm"
+                        className={selectClass}
                     >
                         <option value="">Semua tipe</option>
                         {types.map((typeOption) => (
@@ -77,31 +85,31 @@ export default function ChartOfAccountsIndex({ accounts, types, filters }: Props
                     </Button>
                 </form>
 
-                <div className="overflow-x-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-neutral-50 text-left dark:bg-neutral-900">
+                <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
+                    <table className="ledger-table w-full text-sm">
+                        <thead className="text-left">
                             <tr>
-                                <th className="px-4 py-2 font-medium">Kode</th>
-                                <th className="px-4 py-2 font-medium">Nama</th>
-                                <th className="px-4 py-2 font-medium">Tipe</th>
-                                <th className="px-4 py-2 font-medium">Induk</th>
-                                <th className="px-4 py-2 font-medium">Postable</th>
-                                <th className="px-4 py-2 font-medium">Aksi</th>
+                                <th className="px-4 py-2.5">Kode</th>
+                                <th className="px-4 py-2.5">Nama</th>
+                                <th className="px-4 py-2.5">Tipe</th>
+                                <th className="px-4 py-2.5">Induk</th>
+                                <th className="px-4 py-2.5">Postable</th>
+                                <th className="px-4 py-2.5">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             {accounts.data.map((account) => (
-                                <tr key={account.id} className="border-t">
-                                    <td className="px-4 py-2 font-mono text-xs">{account.code}</td>
-                                    <td className="px-4 py-2">{account.name}</td>
-                                    <td className="px-4 py-2">{TYPE_LABELS[account.type] ?? account.type}</td>
-                                    <td className="px-4 py-2">{account.parent?.code ?? '-'}</td>
-                                    <td className="px-4 py-2">
+                                <tr key={account.id}>
+                                    <td className="px-4 py-2.5 font-mono text-xs">{account.code}</td>
+                                    <td className="px-4 py-2.5 font-medium">{account.name}</td>
+                                    <td className="px-4 py-2.5">{TYPE_LABELS[account.type] ?? account.type}</td>
+                                    <td className="px-4 py-2.5 font-mono text-xs">{account.parent?.code ?? '-'}</td>
+                                    <td className="px-4 py-2.5">
                                         <Badge variant={account.is_postable ? 'default' : 'secondary'}>
                                             {account.is_postable ? 'Ya' : 'Header'}
                                         </Badge>
                                     </td>
-                                    <td className="px-4 py-2">
+                                    <td className="px-4 py-2.5">
                                         <div className="flex gap-2">
                                             <Button asChild variant="outline" size="sm">
                                                 <Link href={edit.url({ chart_of_account: account.id })}>Edit</Link>
@@ -119,7 +127,7 @@ export default function ChartOfAccountsIndex({ accounts, types, filters }: Props
                             ))}
                             {accounts.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-4 py-8 text-center text-neutral-500">
+                                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                                         Tidak ada akun.
                                     </td>
                                 </tr>

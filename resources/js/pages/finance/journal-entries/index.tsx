@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Pagination } from '@/components/master/pagination';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,10 @@ type Props = {
 function entryTotal(lines: { debit: string }[] | undefined): number {
     return (lines ?? []).reduce((sum, line) => sum + Number(line.debit), 0);
 }
+
+/** Gaya <select> natif — selaras dengan fokus manila komponen Input. */
+const selectClass =
+    'border-input bg-card h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30';
 
 export default function JournalEntriesIndex({ entries, sources, filters }: Props) {
     const [q, setQ] = React.useState(filters.q ?? '');
@@ -40,18 +45,19 @@ export default function JournalEntriesIndex({ entries, sources, filters }: Props
         );
     }
 
-    const selectClass = 'border-input bg-background h-9 rounded-md border px-3 text-sm';
-
     return (
         <>
             <Head title="Jurnal Umum" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <h1 className="text-lg font-semibold">Jurnal Umum</h1>
-                    <Button asChild>
-                        <Link href={create.url()}>+ Jurnal Manual</Link>
-                    </Button>
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader
+                    title="Jurnal Umum"
+                    description="Semua catatan keuangan — otomatis dari transaksi atau input manual."
+                    actions={
+                        <Button asChild>
+                            <Link href={create.url()}>+ Jurnal Manual</Link>
+                        </Button>
+                    }
+                />
 
                 <form onSubmit={applyFilter} className="flex flex-wrap items-center gap-2">
                     <Input
@@ -81,33 +87,33 @@ export default function JournalEntriesIndex({ entries, sources, filters }: Props
                     </Button>
                 </form>
 
-                <div className="overflow-x-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-neutral-50 text-left dark:bg-neutral-900">
+                <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
+                    <table className="ledger-table w-full text-sm">
+                        <thead className="text-left">
                             <tr>
-                                <th className="px-4 py-2 font-medium">Nomor Jurnal</th>
-                                <th className="px-4 py-2 font-medium">Tanggal</th>
-                                <th className="px-4 py-2 font-medium">Deskripsi</th>
-                                <th className="px-4 py-2 font-medium">Sumber</th>
-                                <th className="px-4 py-2 font-medium text-right">Total Debit</th>
-                                <th className="px-4 py-2 font-medium">Aksi</th>
+                                <th className="px-4 py-2.5">Nomor Jurnal</th>
+                                <th className="px-4 py-2.5">Tanggal</th>
+                                <th className="px-4 py-2.5">Deskripsi</th>
+                                <th className="px-4 py-2.5">Sumber</th>
+                                <th className="px-4 py-2.5 text-right">Total Debit</th>
+                                <th className="px-4 py-2.5">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             {entries.data.map((entry) => (
-                                <tr key={entry.id} className="border-t">
-                                    <td className="px-4 py-2 font-mono text-xs">{entry.entry_number}</td>
-                                    <td className="px-4 py-2 whitespace-nowrap">{formatDate(entry.entry_date)}</td>
-                                    <td className="px-4 py-2">{entry.description}</td>
-                                    <td className="px-4 py-2">
+                                <tr key={entry.id}>
+                                    <td className="px-4 py-2.5 font-mono text-xs font-medium">{entry.entry_number}</td>
+                                    <td className="px-4 py-2.5 whitespace-nowrap">{formatDate(entry.entry_date)}</td>
+                                    <td className="px-4 py-2.5">{entry.description}</td>
+                                    <td className="px-4 py-2.5">
                                         <Badge variant={journalSourceVariants[entry.source]}>
                                             {journalSourceLabels[entry.source]}
                                         </Badge>
                                     </td>
-                                    <td className="px-4 py-2 text-right whitespace-nowrap tabular-nums">
+                                    <td className="px-4 py-2.5 text-right font-mono whitespace-nowrap">
                                         {formatCurrency(entryTotal(entry.lines))}
                                     </td>
-                                    <td className="px-4 py-2">
+                                    <td className="px-4 py-2.5">
                                         <Button asChild variant="outline" size="sm">
                                             <Link href={show.url({ journal_entry: entry.id })}>Detail</Link>
                                         </Button>
@@ -116,7 +122,7 @@ export default function JournalEntriesIndex({ entries, sources, filters }: Props
                             ))}
                             {entries.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-4 py-8 text-center text-neutral-500">
+                                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                                         Tidak ada jurnal.
                                     </td>
                                 </tr>

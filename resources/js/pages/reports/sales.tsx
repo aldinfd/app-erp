@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Head, router } from '@inertiajs/react';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,75 +47,76 @@ export default function SalesReport({ report, filters }: Props) {
     return (
         <>
             <Head title="Laporan Penjualan" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <h1 className="text-lg font-semibold">Laporan Penjualan</h1>
-                    <ExportButtons from={report.from} to={report.to} />
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader
+                    title="Laporan Penjualan"
+                    description="Semua order pada satu periode — siap di-export."
+                    actions={<ExportButtons from={report.from} to={report.to} />}
+                />
 
                 <form onSubmit={applyFilter} className="flex flex-wrap items-center gap-2">
                     <Input type="date" name="from" value={from} onChange={(e) => setFrom(e.target.value)} className="w-40" aria-label="Dari tanggal" />
-                    <span className="text-sm text-neutral-500">s.d.</span>
+                    <span className="text-sm text-muted-foreground">s.d.</span>
                     <Input type="date" name="to" value={to} onChange={(e) => setTo(e.target.value)} className="w-40" aria-label="Sampai tanggal" />
                     <Button type="submit" variant="outline">
                         Tampilkan
                     </Button>
                 </form>
 
-                <div className="overflow-x-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b bg-neutral-50 dark:bg-neutral-900">
-                                <th className="px-4 py-2 text-left font-medium">Nomor Order</th>
-                                <th className="px-4 py-2 text-left font-medium">Tanggal</th>
-                                <th className="px-4 py-2 text-left font-medium">Customer</th>
-                                <th className="px-4 py-2 text-left font-medium">Status</th>
-                                <th className="px-4 py-2 text-right font-medium">Subtotal</th>
-                                <th className="px-4 py-2 text-right font-medium">Pajak</th>
-                                <th className="px-4 py-2 text-right font-medium">Ongkir</th>
-                                <th className="px-4 py-2 text-right font-medium">Total</th>
+                <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
+                    <table className="ledger-table w-full text-sm">
+                        <thead className="text-left">
+                            <tr>
+                                <th className="px-4 py-2.5">Nomor Order</th>
+                                <th className="px-4 py-2.5">Tanggal</th>
+                                <th className="px-4 py-2.5">Customer</th>
+                                <th className="px-4 py-2.5">Status</th>
+                                <th className="px-4 py-2.5 text-right">Subtotal</th>
+                                <th className="px-4 py-2.5 text-right">Pajak</th>
+                                <th className="px-4 py-2.5 text-right">Ongkir</th>
+                                <th className="px-4 py-2.5 text-right">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             {report.orders.map((order) => (
-                                <tr key={order.order_number} className="border-b last:border-b-0">
-                                    <td className="px-4 py-2 font-mono text-xs">{order.order_number}</td>
-                                    <td className="px-4 py-2">{order.order_date}</td>
-                                    <td className="px-4 py-2">{order.customer_name}</td>
-                                    <td className="px-4 py-2">
+                                <tr key={order.order_number}>
+                                    <td className="px-4 py-2.5 font-mono text-xs font-medium">{order.order_number}</td>
+                                    <td className="px-4 py-2.5">{order.order_date}</td>
+                                    <td className="px-4 py-2.5 font-medium">{order.customer_name}</td>
+                                    <td className="px-4 py-2.5">
                                         <Badge variant={salesOrderStatusVariants[order.status as keyof typeof salesOrderStatusVariants] ?? 'outline'}>
                                             {salesOrderStatusLabels[order.status as keyof typeof salesOrderStatusLabels] ?? order.status}
                                         </Badge>
                                     </td>
-                                    <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(order.subtotal)}</td>
-                                    <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(order.tax)}</td>
-                                    <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(order.shipping)}</td>
-                                    <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(order.grand_total)}</td>
+                                    <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(order.subtotal)}</td>
+                                    <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(order.tax)}</td>
+                                    <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(order.shipping)}</td>
+                                    <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(order.grand_total)}</td>
                                 </tr>
                             ))}
                             {report.orders.length === 0 && (
                                 <tr>
-                                    <td colSpan={8} className="px-4 py-4 text-center text-neutral-500">
+                                    <td colSpan={8} className="px-4 py-4 text-center text-muted-foreground">
                                         Tidak ada order pada periode ini.
                                     </td>
                                 </tr>
                             )}
                         </tbody>
                         <tfoot>
-                            <tr className="border-t bg-neutral-50 font-medium dark:bg-neutral-900">
-                                <td className="px-4 py-2" colSpan={4}>
+                            <tr className="border-t border-dashed bg-muted/60 font-medium">
+                                <td className="px-4 py-2.5" colSpan={4}>
                                     Total {report.total_orders} order
                                 </td>
-                                <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(report.total_subtotal)}</td>
-                                <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(report.total_tax)}</td>
-                                <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(report.total_shipping)}</td>
-                                <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(report.total_grand_total)}</td>
+                                <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(report.total_subtotal)}</td>
+                                <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(report.total_tax)}</td>
+                                <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(report.total_shipping)}</td>
+                                <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(report.total_grand_total)}</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
 
-                <p className="text-sm text-neutral-500">Order dibatalkan tidak dihitung dalam laporan penjualan.</p>
+                <p className="text-sm text-muted-foreground">Order dibatalkan tidak dihitung dalam laporan penjualan.</p>
             </div>
         </>
     );

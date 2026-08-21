@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Pagination } from '@/components/master/pagination';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import InputError from '@/components/input-error';
@@ -55,17 +56,17 @@ function OpnameRow({
     const isLow = Number(product.stock_qty) <= Number(product.reorder_point);
 
     return (
-        <tr className="border-t">
-            <td className="px-4 py-2 font-mono text-xs">{product.sku}</td>
-            <td className="px-4 py-2">{product.name}</td>
-            <td className="px-4 py-2">{product.unit?.abbreviation ?? '-'}</td>
-            <td className={`px-4 py-2 text-right font-mono ${isLow ? 'text-red-600 dark:text-red-400' : ''}`}>
+        <tr>
+            <td className="px-4 py-2.5 font-mono text-xs">{product.sku}</td>
+            <td className="px-4 py-2.5 font-medium">{product.name}</td>
+            <td className="px-4 py-2.5">{product.unit?.abbreviation ?? '-'}</td>
+            <td className={`px-4 py-2.5 text-right font-mono ${isLow ? 'text-red-600 dark:text-red-400' : ''}`}>
                 {formatQty(product.stock_qty, product.unit?.allows_fraction)}
             </td>
-            <td className="px-4 py-2 text-right font-mono">
+            <td className="px-4 py-2.5 text-right font-mono">
                 {formatQty(product.reorder_point, product.unit?.allows_fraction)}
             </td>
-            <td className="px-4 py-2">
+            <td className="px-4 py-2.5">
                 <form onSubmit={submit} className="flex flex-wrap items-center justify-end gap-2">
                     <div className="w-28">
                         <Input
@@ -110,13 +111,11 @@ export default function StockOpnameIndex({ products, filters }: Props) {
     return (
         <>
             <Head title="Stock Opname" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <h1 className="text-lg font-semibold">Stock Opname</h1>
-                    <p className="text-sm text-neutral-500">
-                        Isi stok hasil hitung fisik — sistem mencatat selisihnya sebagai penyesuaian stok.
-                    </p>
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader
+                    title="Stock Opname"
+                    description="Isi stok hasil hitung fisik — sistem mencatat selisihnya sebagai penyesuaian stok."
+                />
 
                 <form onSubmit={applyFilter} className="flex flex-wrap items-center gap-2">
                     <Input
@@ -131,16 +130,16 @@ export default function StockOpnameIndex({ products, filters }: Props) {
                     </Button>
                 </form>
 
-                <div className="overflow-x-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-neutral-50 text-left dark:bg-neutral-900">
+                <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
+                    <table className="ledger-table w-full text-sm">
+                        <thead className="text-left">
                             <tr>
-                                <th className="px-4 py-2 font-medium">SKU</th>
-                                <th className="px-4 py-2 font-medium">Nama</th>
-                                <th className="px-4 py-2 font-medium">Satuan</th>
-                                <th className="px-4 py-2 font-medium text-right">Stok Sistem</th>
-                                <th className="px-4 py-2 font-medium text-right">Reorder Point</th>
-                                <th className="px-4 py-2 font-medium text-right">Koreksi Stok</th>
+                                <th className="px-4 py-2.5">SKU</th>
+                                <th className="px-4 py-2.5">Nama</th>
+                                <th className="px-4 py-2.5">Satuan</th>
+                                <th className="px-4 py-2.5 text-right">Stok Sistem</th>
+                                <th className="px-4 py-2.5 text-right">Reorder Point</th>
+                                <th className="px-4 py-2.5 text-right">Koreksi Stok</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,7 +153,7 @@ export default function StockOpnameIndex({ products, filters }: Props) {
                             ))}
                             {products.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-4 py-8 text-center text-neutral-500">
+                                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                                         Produk tidak ditemukan.
                                     </td>
                                 </tr>

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Pagination } from '@/components/master/pagination';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { create, destroy, edit, index } from '@/routes/categories';
@@ -28,13 +29,15 @@ export default function CategoriesIndex({ categories, filters }: Props) {
     return (
         <>
             <Head title="Kategori" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <h1 className="text-lg font-semibold">Kategori</h1>
-                    <Button asChild>
-                        <Link href={create.url()}>Tambah Kategori</Link>
-                    </Button>
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader
+                    title="Kategori"
+                    actions={
+                        <Button asChild>
+                            <Link href={create.url()}>Tambah Kategori</Link>
+                        </Button>
+                    }
+                />
 
                 <form onSubmit={applySearch} className="flex max-w-sm gap-2">
                     <Input
@@ -48,21 +51,21 @@ export default function CategoriesIndex({ categories, filters }: Props) {
                     </Button>
                 </form>
 
-                <div className="overflow-x-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-neutral-50 text-left dark:bg-neutral-900">
+                <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
+                    <table className="ledger-table w-full text-sm">
+                        <thead className="text-left">
                             <tr>
-                                <th className="px-4 py-2 font-medium">Nama</th>
-                                <th className="px-4 py-2 font-medium">Induk</th>
-                                <th className="px-4 py-2 font-medium">Aksi</th>
+                                <th className="px-4 py-2.5">Nama</th>
+                                <th className="px-4 py-2.5">Induk</th>
+                                <th className="px-4 py-2.5">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             {categories.data.map((category) => (
-                                <tr key={category.id} className="border-t">
-                                    <td className="px-4 py-2">{category.name}</td>
-                                    <td className="px-4 py-2">{category.parent?.name ?? '-'}</td>
-                                    <td className="px-4 py-2">
+                                <tr key={category.id}>
+                                    <td className="px-4 py-2.5 font-medium">{category.name}</td>
+                                    <td className="px-4 py-2.5">{category.parent?.name ?? '-'}</td>
+                                    <td className="px-4 py-2.5">
                                         <div className="flex gap-2">
                                             <Button asChild variant="outline" size="sm">
                                                 <Link href={edit.url({ category: category.id })}>Edit</Link>
@@ -80,7 +83,7 @@ export default function CategoriesIndex({ categories, filters }: Props) {
                             ))}
                             {categories.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={3} className="px-4 py-8 text-center text-neutral-500">
+                                    <td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">
                                         Tidak ada kategori.
                                     </td>
                                 </tr>

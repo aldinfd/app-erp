@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Form, Head, Link } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -13,7 +14,9 @@ type Props = {
     units: Unit[];
 };
 
-const selectClass = 'border-input bg-background h-9 rounded-md border px-3 text-sm';
+/** Gaya <select> natif — selaras dengan fokus manila komponen Input. */
+const selectClass =
+    'border-input bg-card h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30';
 
 export default function ProductsCreate({ categories, units }: Props) {
     const [unitId, setUnitId] = React.useState('');
@@ -25,10 +28,10 @@ export default function ProductsCreate({ categories, units }: Props) {
     return (
         <>
             <Head title="Tambah Produk" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <h1 className="text-lg font-semibold">Tambah Produk</h1>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader title="Tambah Produk" />
 
-                <Form {...store.form()} className="max-w-lg space-y-4">
+                <Form {...store.form()} className="max-w-lg space-y-5 rounded-xl border bg-card p-6 shadow-xs">
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
@@ -95,7 +98,7 @@ export default function ProductsCreate({ categories, units }: Props) {
                                     name="image"
                                     type="file"
                                     accept="image/*"
-                                    className="border-input bg-background h-9 w-full rounded-md border px-3 py-1.5 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-neutral-100 file:px-3 file:py-0.5 file:text-sm dark:file:bg-neutral-800"
+                                    className="border-input bg-card h-9 w-full rounded-md border px-3 py-1.5 text-sm shadow-xs file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-0.5 file:text-sm"
                                 />
                                 <InputError message={errors.image} />
                             </div>

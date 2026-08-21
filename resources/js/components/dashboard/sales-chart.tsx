@@ -47,8 +47,8 @@ function niceMax(value: number): number {
 
 /**
  * Grafik batang revenue per bulan (6 bulan terakhir) — komponen ringan
- * tanpa library chart. Satu series: warna biru gelap di mode terang,
- * biru terang di mode gelap (lolos kontras 3:1 di kedua permukaan).
+ * tanpa library chart. Satu series: tinta buku besar di mode terang,
+ * hijau terang di mode gelap (lolos kontras 3:1 di kedua permukaan).
  * Nilai tiap bulan tersedia via tooltip hover/fokus dan tabel sr-only.
  */
 export function SalesChart({ data }: SalesChartProps) {
@@ -59,7 +59,7 @@ export function SalesChart({ data }: SalesChartProps) {
 
     if (maxRevenue <= 0) {
         return (
-            <p className="flex h-56 items-center justify-center text-sm text-neutral-500">
+            <p className="flex h-56 items-center justify-center text-sm text-muted-foreground">
                 Belum ada penjualan 6 bulan terakhir.
             </p>
         );
@@ -70,18 +70,18 @@ export function SalesChart({ data }: SalesChartProps) {
     return (
         <div>
             <div className="relative h-56">
-                <span className="absolute top-0 left-0 -translate-y-1/2 text-xs text-neutral-500">
+                <span className="absolute top-0 left-0 -translate-y-1/2 font-mono text-[10px] text-muted-foreground">
                     {formatCompactCurrency(scale)}
                 </span>
-                <span className="absolute top-1/2 left-0 -translate-y-1/2 text-xs text-neutral-500">
+                <span className="absolute top-1/2 left-0 -translate-y-1/2 font-mono text-[10px] text-muted-foreground">
                     {formatCompactCurrency(scale / 2)}
                 </span>
-                <span className="absolute bottom-0 left-0 translate-y-1/2 text-xs text-neutral-500">0</span>
+                <span className="absolute bottom-0 left-0 translate-y-1/2 font-mono text-[10px] text-muted-foreground">0</span>
 
                 <div className="absolute inset-y-0 right-0 left-12">
-                    <div className="absolute top-0 right-0 left-0 h-px bg-neutral-200 dark:bg-neutral-800" />
-                    <div className="absolute top-1/2 right-0 left-0 h-px bg-neutral-200 dark:bg-neutral-800" />
-                    <div className="absolute right-0 bottom-0 left-0 h-px bg-neutral-300 dark:bg-neutral-700" />
+                    <div className="absolute top-0 right-0 left-0 h-px bg-border" />
+                    <div className="absolute top-1/2 right-0 left-0 h-px bg-border" />
+                    <div className="absolute right-0 bottom-0 left-0 h-px border-t border-dashed border-border" />
 
                     <div className="absolute inset-0 flex items-end gap-2">
                         {data.map((point, index) => {
@@ -100,11 +100,11 @@ export function SalesChart({ data }: SalesChartProps) {
                                     onBlur={() => setActiveIndex(null)}
                                 >
                                     {isActive && (
-                                        <span className="pointer-events-none absolute left-1/2 z-10 -translate-x-1/2 rounded-md border bg-background px-2 py-1 text-xs whitespace-nowrap shadow-sm"
+                                        <span className="pointer-events-none absolute left-1/2 z-10 -translate-x-1/2 rounded-md border bg-popover px-2 py-1 font-mono text-xs whitespace-nowrap shadow-sm"
                                             style={{ bottom: `calc(${heightPercent}% + 8px)` }}
                                         >
                                             <span className="font-medium">{formatCurrency(point.revenue)}</span>{' '}
-                                            <span className="text-neutral-500">{monthYearLabel(point.month)}</span>
+                                            <span className="text-muted-foreground">{monthYearLabel(point.month)}</span>
                                         </span>
                                     )}
 
@@ -117,7 +117,7 @@ export function SalesChart({ data }: SalesChartProps) {
                                     )}
 
                                     <span
-                                        className={`w-6 max-w-full rounded-t bg-[#2a78d6] dark:bg-[#3987e5] ${isActive ? 'brightness-110' : ''}`}
+                                        className={`w-6 max-w-full rounded-t bg-ink transition-[filter] dark:bg-chart-1 ${isActive ? 'brightness-125' : ''}`}
                                         style={{ height: `${heightPercent}%` }}
                                     />
                                 </button>
@@ -129,7 +129,7 @@ export function SalesChart({ data }: SalesChartProps) {
 
             <div className="mt-2 flex gap-2 pl-12">
                 {data.map((point) => (
-                    <span key={point.month} className="flex-1 text-center text-xs text-neutral-500">
+                    <span key={point.month} className="flex-1 text-center font-mono text-[10px] text-muted-foreground">
                         {monthLabel(point.month)}
                     </span>
                 ))}

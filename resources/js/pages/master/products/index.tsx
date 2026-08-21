@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Pagination } from '@/components/master/pagination';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { create, destroy, edit, index } from '@/routes/products';
-import { formatQty } from '@/lib/utils';
+import { formatCurrency, formatQty } from '@/lib/utils';
 import type { Category, Paginated, Product, Unit } from '@/types';
 
 type Props = {
@@ -13,6 +14,10 @@ type Props = {
     categories: Category[];
     filters: { q?: string; category_id?: string; status?: string };
 };
+
+/** Gaya <select> natif — selaras dengan fokus manila komponen Input. */
+const selectClass =
+    'border-input bg-card h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30';
 
 export default function ProductsIndex({ products, categories, filters }: Props) {
     const [q, setQ] = React.useState(filters.q ?? '');
@@ -41,13 +46,15 @@ export default function ProductsIndex({ products, categories, filters }: Props) 
     return (
         <>
             <Head title="Produk" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <h1 className="text-lg font-semibold">Produk</h1>
-                    <Button asChild>
-                        <Link href={create.url()}>Tambah Produk</Link>
-                    </Button>
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader
+                    title="Produk"
+                    actions={
+                        <Button asChild>
+                            <Link href={create.url()}>Tambah Produk</Link>
+                        </Button>
+                    }
+                />
 
                 <form onSubmit={applyFilter} className="flex flex-wrap items-center gap-2">
                     <Input
@@ -61,7 +68,7 @@ export default function ProductsIndex({ products, categories, filters }: Props) 
                         name="category_id"
                         value={categoryId}
                         onChange={(e) => setCategoryId(e.target.value)}
-                        className="border-input bg-background h-9 rounded-md border px-3 text-sm"
+                        className={selectClass}
                     >
                         <option value="">Semua kategori</option>
                         {categories.map((category) => (
@@ -74,7 +81,7 @@ export default function ProductsIndex({ products, categories, filters }: Props) 
                         name="status"
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
-                        className="border-input bg-background h-9 rounded-md border px-3 text-sm"
+                        className={selectClass}
                     >
                         <option value="">Semua status</option>
                         <option value="active">Aktif</option>
@@ -85,39 +92,39 @@ export default function ProductsIndex({ products, categories, filters }: Props) 
                     </Button>
                 </form>
 
-                <div className="overflow-x-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-neutral-50 text-left dark:bg-neutral-900">
+                <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
+                    <table className="ledger-table w-full text-sm">
+                        <thead className="text-left">
                             <tr>
-                                <th className="px-4 py-2 font-medium">SKU</th>
-                                <th className="px-4 py-2 font-medium">Nama</th>
-                                <th className="px-4 py-2 font-medium">Kategori</th>
-                                <th className="px-4 py-2 font-medium">Satuan</th>
-                                <th className="px-4 py-2 font-medium text-right">Harga Beli</th>
-                                <th className="px-4 py-2 font-medium text-right">Harga Jual</th>
-                                <th className="px-4 py-2 font-medium text-right">Stok</th>
-                                <th className="px-4 py-2 font-medium">Status</th>
-                                <th className="px-4 py-2 font-medium">Aksi</th>
+                                <th className="px-4 py-2.5">SKU</th>
+                                <th className="px-4 py-2.5">Nama</th>
+                                <th className="px-4 py-2.5">Kategori</th>
+                                <th className="px-4 py-2.5">Satuan</th>
+                                <th className="px-4 py-2.5 text-right">Harga Beli</th>
+                                <th className="px-4 py-2.5 text-right">Harga Jual</th>
+                                <th className="px-4 py-2.5 text-right">Stok</th>
+                                <th className="px-4 py-2.5">Status</th>
+                                <th className="px-4 py-2.5">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             {products.data.map((product) => (
-                                <tr key={product.id} className="border-t">
-                                    <td className="px-4 py-2 font-mono text-xs">{product.sku}</td>
-                                    <td className="px-4 py-2">{product.name}</td>
-                                    <td className="px-4 py-2">{product.category?.name ?? '-'}</td>
-                                    <td className="px-4 py-2">{product.unit?.abbreviation ?? '-'}</td>
-                                    <td className="px-4 py-2 text-right">{product.cost_price}</td>
-                                    <td className="px-4 py-2 text-right">{product.selling_price}</td>
-                                    <td className="px-4 py-2 text-right font-mono">
+                                <tr key={product.id}>
+                                    <td className="px-4 py-2.5 font-mono text-xs">{product.sku}</td>
+                                    <td className="px-4 py-2.5 font-medium">{product.name}</td>
+                                    <td className="px-4 py-2.5">{product.category?.name ?? '-'}</td>
+                                    <td className="px-4 py-2.5">{product.unit?.abbreviation ?? '-'}</td>
+                                    <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(product.cost_price)}</td>
+                                    <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(product.selling_price)}</td>
+                                    <td className="px-4 py-2.5 text-right font-mono">
                                         {formatQty(product.stock_qty, product.unit?.allows_fraction)}
                                     </td>
-                                    <td className="px-4 py-2">
+                                    <td className="px-4 py-2.5">
                                         <Badge variant={product.is_active ? 'default' : 'secondary'}>
                                             {product.is_active ? 'Aktif' : 'Nonaktif'}
                                         </Badge>
                                     </td>
-                                    <td className="px-4 py-2">
+                                    <td className="px-4 py-2.5">
                                         <div className="flex gap-2">
                                             <Button asChild variant="outline" size="sm">
                                                 <Link href={edit.url({ product: product.id })}>Edit</Link>
@@ -131,7 +138,7 @@ export default function ProductsIndex({ products, categories, filters }: Props) 
                             ))}
                             {products.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={9} className="px-4 py-8 text-center text-neutral-500">
+                                    <td colSpan={9} className="px-4 py-8 text-center text-muted-foreground">
                                         Tidak ada produk.
                                     </td>
                                 </tr>

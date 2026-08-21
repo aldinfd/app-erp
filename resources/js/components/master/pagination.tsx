@@ -15,11 +15,11 @@ export function Pagination<T>({ items }: Props<T>) {
     }
 
     return (
-        <div className="mt-4 flex items-center justify-between text-sm">
-            <span className="text-neutral-500">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm">
+            <span className="text-muted-foreground">
                 Menampilkan {items.from ?? 0}–{items.to ?? 0} dari {items.total} data
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
                 <Button
                     type="button"
                     variant="outline"
@@ -29,7 +29,7 @@ export function Pagination<T>({ items }: Props<T>) {
                 >
                     Sebelumnya
                 </Button>
-                <span>
+                <span className="font-mono text-xs text-muted-foreground">
                     Hal. {items.current_page} / {items.last_page}
                 </span>
                 <Button

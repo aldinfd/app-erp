@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Pagination } from '@/components/master/pagination';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,10 @@ type Props = {
     vendors: Paginated<Vendor>;
     filters: { q?: string; status?: string };
 };
+
+/** Gaya <select> natif — selaras dengan fokus manila komponen Input. */
+const selectClass =
+    'border-input bg-card h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30';
 
 export default function VendorsIndex({ vendors, filters }: Props) {
     const [q, setQ] = React.useState(filters.q ?? '');
@@ -34,13 +39,15 @@ export default function VendorsIndex({ vendors, filters }: Props) {
     return (
         <>
             <Head title="Vendor" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <h1 className="text-lg font-semibold">Vendor</h1>
-                    <Button asChild>
-                        <Link href={create.url()}>Tambah Vendor</Link>
-                    </Button>
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-5 p-4">
+                <PageHeader
+                    title="Vendor"
+                    actions={
+                        <Button asChild>
+                            <Link href={create.url()}>Tambah Vendor</Link>
+                        </Button>
+                    }
+                />
 
                 <form onSubmit={applyFilter} className="flex flex-wrap items-center gap-2">
                     <Input
@@ -54,7 +61,7 @@ export default function VendorsIndex({ vendors, filters }: Props) {
                         name="status"
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
-                        className="border-input bg-background h-9 rounded-md border px-3 text-sm"
+                        className={selectClass}
                     >
                         <option value="">Semua status</option>
                         <option value="active">Aktif</option>
@@ -65,29 +72,29 @@ export default function VendorsIndex({ vendors, filters }: Props) {
                     </Button>
                 </form>
 
-                <div className="overflow-x-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-neutral-50 text-left dark:bg-neutral-900">
+                <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
+                    <table className="ledger-table w-full text-sm">
+                        <thead className="text-left">
                             <tr>
-                                <th className="px-4 py-2 font-medium">Nama</th>
-                                <th className="px-4 py-2 font-medium">Email</th>
-                                <th className="px-4 py-2 font-medium">Telepon</th>
-                                <th className="px-4 py-2 font-medium">Status</th>
-                                <th className="px-4 py-2 font-medium">Aksi</th>
+                                <th className="px-4 py-2.5">Nama</th>
+                                <th className="px-4 py-2.5">Email</th>
+                                <th className="px-4 py-2.5">Telepon</th>
+                                <th className="px-4 py-2.5">Status</th>
+                                <th className="px-4 py-2.5">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             {vendors.data.map((vendor) => (
-                                <tr key={vendor.id} className="border-t">
-                                    <td className="px-4 py-2">{vendor.name}</td>
-                                    <td className="px-4 py-2">{vendor.email ?? '-'}</td>
-                                    <td className="px-4 py-2">{vendor.phone ?? '-'}</td>
-                                    <td className="px-4 py-2">
+                                <tr key={vendor.id}>
+                                    <td className="px-4 py-2.5 font-medium">{vendor.name}</td>
+                                    <td className="px-4 py-2.5">{vendor.email ?? '-'}</td>
+                                    <td className="px-4 py-2.5 font-mono text-xs">{vendor.phone ?? '-'}</td>
+                                    <td className="px-4 py-2.5">
                                         <Badge variant={vendor.is_active ? 'default' : 'secondary'}>
                                             {vendor.is_active ? 'Aktif' : 'Nonaktif'}
                                         </Badge>
                                     </td>
-                                    <td className="px-4 py-2">
+                                    <td className="px-4 py-2.5">
                                         <div className="flex gap-2">
                                             <Button asChild variant="outline" size="sm">
                                                 <Link href={edit.url({ vendor: vendor.id })}>Edit</Link>
@@ -101,7 +108,7 @@ export default function VendorsIndex({ vendors, filters }: Props) {
                             ))}
                             {vendors.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="px-4 py-8 text-center text-neutral-500">
+                                    <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                                         Tidak ada vendor.
                                     </td>
                                 </tr>
